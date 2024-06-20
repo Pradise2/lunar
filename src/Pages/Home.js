@@ -31,11 +31,11 @@ const Home = () => {
   const { totalBal, addTotalBal } = useTotalBal(); 
   const [level, setLevel] = useState(1);
   const [completed, setCompleted] = useState(0);
-
   const images = [tapps,blue, a, b, c, d, e, f, g, h, i]; // Array of images for each level
-
   // Set initial image source based on the initial level
   const [imageSrc, setImageSrc] = useState(images[0]); 
+
+  window.Telegram.WebApp.expand();
 
   // Simulate loading data for the initial render
   useEffect(() => {

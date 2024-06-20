@@ -3,15 +3,16 @@ import { getFirestore } from "firebase/firestore";
 
 
 const firebaseConfig = {
-    apiKey: "AIzaSyAURFbyDHkq626UusPHMijpxmcUOOl5-Tw",
-    authDomain: "test-f326f.firebaseapp.com",
-    projectId: "test-f326f",
-    storageBucket: "test-f326f.appspot.com",
-    messagingSenderId: "626801402709",
-    appId: "1:626801402709:web:d3653b964333a0de6845dc",
-    measurementId: "G-517PH4LM9K",
-    databaseURL: "https://test-f326f.firestore.nam5.firebasedatabase.app" 
+    apiKey: "AIzaSyBoapqfEEJwsZiStOWhZeTZlpFStKFCY80",
+  authDomain: "lunar-2ac46.firebaseapp.com",
+  projectId: "lunar-2ac46",
+  storageBucket: "lunar-2ac46.appspot.com",
+  messagingSenderId: "954289049346",
+  appId: "1:954289049346:web:1a08d54b3ae4122c82fc1b",
+  measurementId: "G-57Q2844SHQ",
+    databaseURL: "https://lunar-2ac46.firestore.europe-west3.firebasedatabase.app" 
   };
+
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);

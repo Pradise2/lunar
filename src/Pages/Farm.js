@@ -50,7 +50,7 @@ const Farm = () => {
   };
 
   return (
-    <div class="min-h-screen bg-zinc-900 text-white flex flex-col items-center justify-center p-2">
+    <div class="min-h-screen bg-zinc-900 text-white flex flex-col items-center justify-center p-6">
     <div class="text-center">
       <h1 class="text-2xl font-bold">Lunar Token Farming</h1>
       <p class="mt-6">keep your farm thriving!</p>

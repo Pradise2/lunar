@@ -31,8 +31,7 @@ const Home = () => {
   const { totalBal, addTotalBal } = useTotalBal(); 
   const [level, setLevel] = useState(1);
   const [completed, setCompleted] = useState(0);
-  const images = [tapps,blue, a, b, c, d, e, f, g, h, i]; // Array of images for each level
-  // Set initial image source based on the initial level
+  const images = [tapps,blue, a, b, c, d, e, f, g, h, i]; 
   const [imageSrc, setImageSrc] = useState(images[0]); 
 
   window.Telegram.WebApp.expand();
@@ -88,7 +87,7 @@ const Home = () => {
   return (
     <div className="p-7 min-h-screen bg-zinc-900 text-white flex flex-col items-center">
       <div className="p-2 rounded-lg text-center w-full max-w-md">
-        <p className="p-3 text-zinc-400 font-bold">Lunar Token</p>
+        <p className="p-3 text-zinc-400 font-bold text-2xl ">Lunar Token</p>
         <p className="p-4 text-4xl font-bold">
           {totalBalCom(totalBal)} <span className="text-purple-400">lunar</span>
         </p>

@@ -10,7 +10,7 @@ const Squad = () => {
   
 
   return (
-    <div className="min-h-screen bg-zinc-900 text-white flex flex-col items-center p-0">
+    <div className="min-h-screen bg-zinc-900 text-white flex flex-col items-center p-6">
       <h1 className="text-center text-2xl font-bold mb-6">
         The bigger the tribe, the better the vibe!
       </h1>
@@ -35,13 +35,13 @@ const Squad = () => {
         </div>
         <p> 0 Users</p>
       </div>
-      <div className="w-full max-w-md flex space-x-2 mt-5">
+      <div className="w-full max-w-md flex space-x-2 mt-5 pb-5">
         <button  className="flex-1 bg-purple-500 py-2 rounded-lg">Invite friends</button>
         <button  className="bg-zinc-700 p-2 rounded-lg">
           {copied ? <span>Copied!</span> : <span>Copy</span>}
         </button>
-      </div>
-      <Footer />
+      </div >
+      <Footer className="pt-5"/>
     </div>
   );
 };

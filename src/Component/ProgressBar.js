@@ -36,7 +36,7 @@ const ProgressBar = ({ completed, level, totalLevels }) => {
 
   const containerStyles = {
     height: 20, // Reduce container height
-    width: "30%", // Reduce container width
+    width: "80%", // Reduce container width
     backgroundColor: "#e0e0de",
     borderRadius: 50,
     margin: "auto", // Center the progress bar
@@ -64,27 +64,27 @@ const ProgressBar = ({ completed, level, totalLevels }) => {
 
   const levelStyles = {
     color: "white",
-    fontWeight: "bold",
+    fontWeight: "normal",
     textAlign: "left",
     flex: 1,
   };
 
   const claimLevelStyles = {
     color: "white",
-    fontWeight: "bold",
+    fontWeight: "normal",
     textAlign: "right",
     flex: 1,
     
   };
 
   const progressBarContainerStyles = {
-    width: "30%",
+    width: "80%",
     margin: "auto",
     marginTop: 0,
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 10,
+    marginBottom: 3,
   };
 
   return (

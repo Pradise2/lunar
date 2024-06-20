@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../firebase';
 import Footer from '../Component/Footer';
 import imageList from '../utils/ImageList';
 import FormattedTime from '../Component/FormattedTime';
@@ -7,6 +6,7 @@ import { useTotalBal } from '../Context/TotalBalContext';
 import MoonAnimation from '../Animation/MoonAnimation';
 import ProgressBar from '../Component/ProgressBar';
 import TapImage from '../Component/TapImage';
+import { db } from '../firebase'; // Import your Firestore instance
 
 // Function to format numbers with commas and two decimal places
 const totalBalCom = (totalBal) => {
@@ -39,6 +39,26 @@ const Home = () => {
     }
   }, []);
 
+  // Save data to Firestore
+  useEffect(() => {
+    if (userId !== null) {
+      try {
+        db.collection('Game').doc(userId).set({
+          tapLeft,
+          tapTime,
+          totalBal,
+          level,
+          completed,
+          taps
+        });
+      } catch (error) {
+        console.error('Error saving data to Firestore:', error);
+        // Handle the error, e.g., display an error message to the user
+      }
+    }
+  }, [userId, tapLeft, tapTime, totalBal, level, completed, taps]);
+
+
   // Simulate loading data for the initial render
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -59,25 +79,6 @@ const Home = () => {
       setTapTime(60); // Reset tapTime
     }
   }, [tapTime]);
-
-
-  // Save data to Firestore
-  useEffect(() => {
-    if (userId !== null) {
-      try {
-        db.collection('Game').doc(userId).set({
-          tapLeft,
-          tapTime,
-          totalBal,
-          level,
-          completed,
-          taps
-        });
-      } catch (error) {
-        console.error('Error saving data to Firestore:', error);
-      }
-    }
-  }, [userId, tapLeft, tapTime, totalBal, level, completed, taps]);
 
   // Show loading animation if data is still loading
   if (isLoading) {

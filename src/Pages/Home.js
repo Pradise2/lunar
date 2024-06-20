@@ -1,20 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { db } from '../firebase';
 import Footer from '../Component/Footer';
-import tapps from '../images/tapps.png';
-import blue from '../images/blue.webp'
-import a from "../images/a.jpg";
-import b from "../images/b.jpg";
-import c from "../images/c.jpg";
-import d from "../images/d.jpg";
-import e from "../images/e.jpg";
-import f from "../images/f.jpg";
-import g from "../images/g.jpg";
-import h from "../images/h.jpg";
-import i from "../images/i.jpg";
+import imageList from '../utils/ImageList';
 import FormattedTime from '../Component/FormattedTime';
 import { useTotalBal } from '../Context/TotalBalContext'; 
 import MoonAnimation from '../Animation/MoonAnimation';
 import ProgressBar from '../Component/ProgressBar';
+import TapImage from '../Component/TapImage';
 
 // Function to format numbers with commas and two decimal places
 const totalBalCom = (totalBal) => {
@@ -31,10 +23,21 @@ const Home = () => {
   const { totalBal, addTotalBal } = useTotalBal(); 
   const [level, setLevel] = useState(1);
   const [completed, setCompleted] = useState(0);
-  const images = [tapps,blue, a, b, c, d, e, f, g, h, i]; 
-  const [imageSrc, setImageSrc] = useState(images[0]); 
 
   window.Telegram.WebApp.expand();
+
+  useEffect(() => {
+    if (window.Telegram && window.Telegram.WebApp) {
+      const user = window.Telegram.WebApp.initDataUnsafe?.user;
+      if (user) {
+        setUserId(user.id);
+      } else {
+        console.error('User data is not available.');
+      }
+    } else {
+      console.error('Telegram WebApp script is not loaded.');
+    }
+  }, []);
 
   // Simulate loading data for the initial render
   useEffect(() => {
@@ -57,27 +60,24 @@ const Home = () => {
     }
   }, [tapTime]);
 
-  // Handle click event for the image
-  const handleClickC3 = () => {
-    if (tapLeft > 0 && tapTime > 0 && level <= 9) {
-      setTapLeft(tapLeft - 1);
-      setTaps(taps + 1);
-      addTotalBal(0.1); // Update totalBal using addTotalBal from context
 
-      const newCompleted = ((taps + 1) % 20) * 5; // Each tap is 5% progress (20 taps for 100%)
-      setCompleted(newCompleted);
-
-      if (taps + 1 >= 20 && level < 9) {
-        setLevel(prevLevel => prevLevel + 1); // Increase level after 20 taps
-        setTaps(0); // Reset taps
+  // Save data to Firestore
+  useEffect(() => {
+    if (userId !== null) {
+      try {
+        db.collection('Game').doc(userId).set({
+          tapLeft,
+          tapTime,
+          totalBal,
+          level,
+          completed,
+          taps
+        });
+      } catch (error) {
+        console.error('Error saving data to Firestore:', error);
       }
     }
-  };
-
-  // Update imageSrc based on the level, but only up to level 9
-  useEffect(() => {
-    setImageSrc(images[Math.min(level, 9)]); // Change image source based on the current level
-  }, [level, images]);
+  }, [userId, tapLeft, tapTime, totalBal, level, completed, taps]);
 
   // Show loading animation if data is still loading
   if (isLoading) {
@@ -97,7 +97,7 @@ const Home = () => {
         <p className="text-zinc-400">
           Won't stop! Tap time shows refill, {userId ? `${userId} ` : ''} but the fun won’t flop! <span className="text-yellow-400">👍</span>
         </p>
-        <div className=" flex justify-center space-x-4">
+        <div className="flex justify-center space-x-4">
           <div className="bg-purple-800 p-2 rounded-lg flex">
             <p>{tapLeft} taps left</p>
           </div>
@@ -107,16 +107,21 @@ const Home = () => {
           </div>
         </div>
       </div>
-      <div className="flex justify-center pt-7">
-      <img
-  id="C3"
-  src={imageSrc}
-  alt="Lunar Token"
-  className="rounded-full cursor-pointer"
-  style={{ width: '200px', height: '200px'}}
-  onClick={handleClickC3}
-/>
-      </div>
+
+      <TapImage
+        images={imageList}
+        level={level}
+        taps={taps}
+        setTaps={setTaps}
+        setLevel={setLevel}
+        addTotalBal={addTotalBal}
+        setCompleted={setCompleted}
+        tapLeft={tapLeft}
+        setTapLeft={setTapLeft}
+        tapTime={tapTime}
+        setTapTime={setTapTime}
+      />
+
       <div className="w-full justify-center">
         <ProgressBar
           completed={completed}

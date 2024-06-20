@@ -6,7 +6,8 @@ import { useTotalBal } from '../Context/TotalBalContext';
 import MoonAnimation from '../Animation/MoonAnimation';
 import ProgressBar from '../Component/ProgressBar';
 import TapImage from '../Component/TapImage';
-import { db } from '../firebase'; // Import your Firestore instance
+import { db } from '../firebaseConfig'; // Import your Firestore instance
+import { collection, setDoc } from 'firebase/firestore'; // Import Firestore functions
 
 // Function to format numbers with commas and two decimal places
 const totalBalCom = (totalBal) => {
@@ -24,9 +25,8 @@ const Home = () => {
   const [level, setLevel] = useState(1);
   const [completed, setCompleted] = useState(0);
 
-  window.Telegram.WebApp.expand();
-
   useEffect(() => {
+    // Check if Telegram WebApp and user data are available
     if (window.Telegram && window.Telegram.WebApp) {
       const user = window.Telegram.WebApp.initDataUnsafe?.user;
       if (user) {
@@ -39,11 +39,13 @@ const Home = () => {
     }
   }, []);
 
-  // Save data to Firestore
+  // Save data to Firestore when userId changes
   useEffect(() => {
     if (userId !== null) {
       try {
-        db.collection('Game').doc(userId).set({
+        // Reference to the 'Game' collection and set document with userId
+        const gameRef = collection(db, 'Game');
+        const userDoc = setDoc(gameRef.doc(userId), {
           tapLeft,
           tapTime,
           totalBal,
@@ -57,7 +59,6 @@ const Home = () => {
       }
     }
   }, [userId, tapLeft, tapTime, totalBal, level, completed, taps]);
-
 
   // Simulate loading data for the initial render
   useEffect(() => {

@@ -36,7 +36,7 @@ const ProgressBar = ({ completed, level, totalLevels }) => {
 
   const containerStyles = {
     height: 20, // Reduce container height
-    width: "80%", // Reduce container width
+    width: "30%", // Reduce container width
     backgroundColor: "#e0e0de",
     borderRadius: 50,
     margin: "auto", // Center the progress bar
@@ -57,7 +57,7 @@ const ProgressBar = ({ completed, level, totalLevels }) => {
   };
 
   const labelStyles = {
-    padding: 5,
+    padding: 4,
     color: "white",
     fontWeight: "bold",
   };
@@ -78,6 +78,9 @@ const ProgressBar = ({ completed, level, totalLevels }) => {
   };
 
   const progressBarContainerStyles = {
+    width: "30%",
+    margin: "auto",
+    marginTop: 0,
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
@@ -85,7 +88,7 @@ const ProgressBar = ({ completed, level, totalLevels }) => {
   };
 
   return (
-    <div style={{ marginBottom: 40 }}>
+    <div style={{ marginBottom: 15 }}>
       <div style={progressBarContainerStyles}>
         <div style={levelStyles}>{`Level: ${level} / ${totalLevels}`}</div>
         <div style={claimLevelStyles}>{getClaimLevelText(level)}</div>

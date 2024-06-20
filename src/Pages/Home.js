@@ -98,7 +98,7 @@ const Home = () => {
         <p className="text-zinc-400">
           Won't stop! Tap time shows refill, {userId ? `${userId} ` : ''} but the fun won’t flop! <span className="text-yellow-400">👍</span>
         </p>
-        <div className="p-4 flex justify-center space-x-4">
+        <div className=" flex justify-center space-x-4">
           <div className="bg-purple-800 p-2 rounded-lg flex">
             <p>{tapLeft} taps left</p>
           </div>
@@ -108,14 +108,15 @@ const Home = () => {
           </div>
         </div>
       </div>
-      <div className="p-8 m-5 flex justify-center">
-        <img
-          id="C3"
-          src={imageSrc}
-          alt="Lunar Token"
-          className="rounded-full w-24 h-24 cursor-pointer"
-          onClick={handleClickC3}
-        />
+      <div className="flex justify-center pt-7">
+      <img
+  id="C3"
+  src={imageSrc}
+  alt="Lunar Token"
+  className="rounded-full cursor-pointer"
+  style={{ width: '200px', height: '200px'}}
+  onClick={handleClickC3}
+/>
       </div>
       <div className="w-full justify-center">
         <ProgressBar

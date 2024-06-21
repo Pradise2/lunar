@@ -115,7 +115,7 @@ const Home = () => {
       if (userId) {
         saveData();
       }
-    }, 30000); // Save data every 30 seconds
+    }, 10000); // Save data every 10 seconds
 
     return () => clearInterval(interval);
   }, [userId, tapLeft, tapTime, totalBal, level, completed, taps]);
@@ -133,7 +133,7 @@ const Home = () => {
     }
   }, [tapTime]);
 
-  // Show loading animation if data is still loading
+  // Show loading animation until data is fetched
   if (isLoading) {
     return <MoonAnimation />;
   }

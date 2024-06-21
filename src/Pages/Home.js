@@ -6,10 +6,9 @@ import { useTotalBal } from '../Context/TotalBalContext';
 import MoonAnimation from '../Animation/MoonAnimation';
 import ProgressBar from '../Component/ProgressBar';
 import TapImage from '../Component/TapImage';
-import { db } from '../firebaseConfig'; // Import your Firestore instance
-import { doc, setDoc, getDoc } from 'firebase/firestore'; // Import Firestore functions
+import { db } from '../firebaseConfig'; 
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
-// Function to format numbers with commas and two decimal places
 const totalBalCom = (totalBal) => {
   const fixedNumber = totalBal.toFixed(2);
   return fixedNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -19,8 +18,8 @@ const Home = () => {
   const [userId, setUserId] = useState(null);
   const [firstname, setFirstName] = useState(null);
   const [tapLeft, setTapLeft] = useState(1000);
-  const [tapTime, setTapTime] = useState(300); // Initial tap time set to 5 minutes (300 seconds)
-  const [lastActiveTime, setLastActiveTime] = useState(null); // To store the last active timestamp
+  const [tapTime, setTapTime] = useState(300);
+  const [lastActiveTime, setLastActiveTime] = useState(null);
   const [taps, setTaps] = useState(0);
   const [isLoading, setIsLoading] = useState(true); 
   const { totalBal, setTotalBal, addTotalBal } = useTotalBal(); 
@@ -30,8 +29,8 @@ const Home = () => {
 
   window.Telegram.WebApp.expand();
 
+  // Initialize Telegram WebApp user data
   useEffect(() => {
-    // Check if Telegram WebApp and user data are available
     if (window.Telegram && window.Telegram.WebApp) {
       const user = window.Telegram.WebApp.initDataUnsafe?.user;
       if (user) {
@@ -45,10 +44,11 @@ const Home = () => {
     }
   }, []);
 
+  // Fetch user data from Firestore when userId is set
   useEffect(() => {
-    // Function to fetch user data from Firestore
     const fetchData = async () => {
       if (userId) {
+        setIsLoading(true); // Set loading to true when starting fetch
         const userDocRef = doc(db, 'Game', String(userId));
         const userDoc = await getDoc(userDocRef);
 
@@ -74,8 +74,8 @@ const Home = () => {
             setTapTime(300); // Reset tapTime to 5 minutes
           }
         }
+        setIsLoading(false); // Set loading to false after fetch completes
       }
-      setIsLoading(false);
     };
 
     fetchData();
@@ -97,11 +97,11 @@ const Home = () => {
       console.log('Data saved successfully');
     } catch (error) {
       console.error('Error saving data to Firestore:', error);
-      alert(`Error saving data: ${error.message}`); // Added for better error visibility
+      alert(`Error saving data: ${error.message}`);
     }
   };
 
-  // Save data on unmount
+  // Save data when component unmounts or specific state changes
   useEffect(() => {
     return () => {
       if (userId) {
@@ -116,7 +116,7 @@ const Home = () => {
       if (userId) {
         saveData();
       }
-    }, 10000); // Save data every 10 seconds
+    }, 1000); // Save data every 1 seconds
 
     return () => clearInterval(interval);
   }, [userId, tapLeft, tapTime, totalBal, level, completed, taps]);

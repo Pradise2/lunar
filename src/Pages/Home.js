@@ -59,7 +59,7 @@ const Home = () => {
         console.log('Data saved successfully');
       } catch (error) {
         console.error('Error saving data to Firestore:', error);
-        // Handle the error, e.g., display an error message to the user
+        alert(`Error saving data: ${error.message}`); // Added for better error visibility
       }
     };
 

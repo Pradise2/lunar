@@ -47,7 +47,7 @@ const Home = () => {
   useEffect(() => {
     const saveData = async () => {
       try {
-        const userDocRef = doc(db, 'Game', userId);
+        const userDocRef = doc(db, 'Game', String(userId));
         await setDoc(userDocRef, {
           tapLeft,
           tapTime,

@@ -25,6 +25,8 @@ const Home = () => {
   const [level, setLevel] = useState(1);
   const [completed, setCompleted] = useState(0);
 
+  window.Telegram.WebApp.expand();
+
   useEffect(() => {
     // Check if Telegram WebApp and user data are available
     if (window.Telegram && window.Telegram.WebApp) {

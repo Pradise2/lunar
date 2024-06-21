@@ -26,6 +26,7 @@ const Home = () => {
   const { totalBal, setTotalBal, addTotalBal } = useTotalBal(); 
   const [level, setLevel] = useState(1);
   const [completed, setCompleted] = useState(0);
+  const [showAnimation, setShowAnimation] = useState(true);
 
   window.Telegram.WebApp.expand();
 
@@ -133,8 +134,20 @@ const Home = () => {
     }
   }, [tapTime]);
 
+  // Show MoonAnimation for 6 seconds after user logs in
+  useEffect(() => {
+    if (userId) {
+      setShowAnimation(true);
+      const timer = setTimeout(() => {
+        setShowAnimation(false);
+      }, 6000); // 6 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [userId]);
+
   // Show loading animation until data is fetched
-  if (isLoading) {
+  if (isLoading || showAnimation) {
     return <MoonAnimation />;
   }
 

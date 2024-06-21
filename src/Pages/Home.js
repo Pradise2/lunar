@@ -19,7 +19,7 @@ const Home = () => {
   const [userId, setUserId] = useState(null);
   const [firstname, setFirstName] = useState(null);
   const [tapLeft, setTapLeft] = useState(1000);
-  const [tapTime, setTapTime] = useState(60); // Initial tap time in seconds
+  const [tapTime, setTapTime] = useState(300); // Initial tap time set to 5 minutes (300 seconds)
   const [taps, setTaps] = useState(0);
   const [isLoading, setIsLoading] = useState(true); 
   const { totalBal, addTotalBal } = useTotalBal(); 
@@ -85,7 +85,7 @@ const Home = () => {
       return () => clearInterval(interval);
     } else {
       setTapLeft(1000);
-      setTapTime(60); // Reset tapTime
+      setTapTime(300); // Reset tapTime to 5 minutes
     }
   }, [tapTime]);
 

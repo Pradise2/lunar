@@ -23,7 +23,7 @@ const Home = () => {
   const [lastActiveTime, setLastActiveTime] = useState(null); // To store the last active timestamp
   const [taps, setTaps] = useState(0);
   const [isLoading, setIsLoading] = useState(true); 
-  const { totalBal, addTotalBal } = useTotalBal(); 
+  const { totalBal, setTotalBal, addTotalBal } = useTotalBal(); 
   const [level, setLevel] = useState(1);
   const [completed, setCompleted] = useState(0);
 
@@ -56,6 +56,7 @@ const Home = () => {
           setTapLeft(data.tapLeft);
           setTapTime(data.tapTime);
           setLastActiveTime(data.lastActiveTime);
+          setTotalBal(data.totalBal);
           setLevel(data.level);
           setCompleted(data.completed);
           setTaps(data.taps);
@@ -77,32 +78,46 @@ const Home = () => {
     };
 
     fetchData();
-  }, [userId]);
+  }, [userId, setTotalBal]);
 
-  // Save data to Firestore
+  // Function to save data to Firestore
+  const saveData = async () => {
+    try {
+      const userDocRef = doc(db, 'Game', String(userId));
+      await setDoc(userDocRef, {
+        tapLeft,
+        tapTime,
+        lastActiveTime: Math.floor(Date.now() / 1000), // Save the current timestamp
+        totalBal,
+        level,
+        completed,
+        taps
+      });
+      console.log('Data saved successfully');
+    } catch (error) {
+      console.error('Error saving data to Firestore:', error);
+      alert(`Error saving data: ${error.message}`); // Added for better error visibility
+    }
+  };
+
+  // Save data on unmount
   useEffect(() => {
-    const saveData = async () => {
-      try {
-        const userDocRef = doc(db, 'Game', String(userId));
-        await setDoc(userDocRef, {
-          tapLeft,
-          tapTime,
-          lastActiveTime: Math.floor(Date.now() / 1000), // Save the current timestamp
-          totalBal,
-          level,
-          completed,
-          taps
-        });
-        console.log('Data saved successfully');
-      } catch (error) {
-        console.error('Error saving data to Firestore:', error);
-        alert(`Error saving data: ${error.message}`); // Added for better error visibility
+    return () => {
+      if (userId) {
+        saveData();
       }
     };
+  }, [userId, tapLeft, tapTime, totalBal, level, completed, taps]);
 
-    if (userId) {
-      saveData();
-    }
+  // Auto-save data at regular intervals
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (userId) {
+        saveData();
+      }
+    }, 30000); // Save data every 30 seconds
+
+    return () => clearInterval(interval);
   }, [userId, tapLeft, tapTime, totalBal, level, completed, taps]);
 
   // Countdown timer for tapTime

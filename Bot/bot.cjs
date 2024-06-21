@@ -6,7 +6,7 @@ const { getFirestore, doc, setDoc } = require('firebase/firestore');
 
 const firebaseConfig = {
     apiKey: "AIzaSyBoapqfEEJwsZiStOWhZeTZlpFStKFCY80",
-    databaseURL: "https://lunar-2ac46.firestore.europe-west3.firebasedatabase.app",
+    databaseURL: "https://lunar-2ac46-default-rtdb.firebaseio.com/",
       authDomain: "lunar-2ac46.firebaseapp.com",
   projectId: "lunar-2ac46",
   storageBucket: "lunar-2ac46.appspot.com",

@@ -7,7 +7,7 @@ import MoonAnimation from '../Animation/MoonAnimation';
 import ProgressBar from '../Component/ProgressBar';
 import TapImage from '../Component/TapImage';
 import { db } from '../firebaseConfig'; // Import your Firestore instance
-import { doc, setDoc } from 'firebase/firestore'; // Import Firestore functions
+import { doc, setDoc, getDoc } from 'firebase/firestore'; // Import Firestore functions
 
 // Function to format numbers with commas and two decimal places
 const totalBalCom = (totalBal) => {
@@ -20,6 +20,7 @@ const Home = () => {
   const [firstname, setFirstName] = useState(null);
   const [tapLeft, setTapLeft] = useState(1000);
   const [tapTime, setTapTime] = useState(300); // Initial tap time set to 5 minutes (300 seconds)
+  const [lastActiveTime, setLastActiveTime] = useState(null); // To store the last active timestamp
   const [taps, setTaps] = useState(0);
   const [isLoading, setIsLoading] = useState(true); 
   const { totalBal, addTotalBal } = useTotalBal(); 
@@ -43,7 +44,42 @@ const Home = () => {
     }
   }, []);
 
-  // Save data to Firestore when userId changes
+  useEffect(() => {
+    // Function to fetch user data from Firestore
+    const fetchData = async () => {
+      if (userId) {
+        const userDocRef = doc(db, 'Game', String(userId));
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          setTapLeft(data.tapLeft);
+          setTapTime(data.tapTime);
+          setLastActiveTime(data.lastActiveTime);
+          setLevel(data.level);
+          setCompleted(data.completed);
+          setTaps(data.taps);
+
+          // Calculate remaining tap time based on last active time
+          const currentTime = Math.floor(Date.now() / 1000);
+          const elapsed = currentTime - data.lastActiveTime;
+          const newTapTime = data.tapTime - elapsed;
+
+          if (newTapTime > 0) {
+            setTapTime(newTapTime);
+          } else {
+            setTapLeft(1000);
+            setTapTime(300); // Reset tapTime to 5 minutes
+          }
+        }
+      }
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, [userId]);
+
+  // Save data to Firestore
   useEffect(() => {
     const saveData = async () => {
       try {
@@ -51,6 +87,7 @@ const Home = () => {
         await setDoc(userDocRef, {
           tapLeft,
           tapTime,
+          lastActiveTime: Math.floor(Date.now() / 1000), // Save the current timestamp
           totalBal,
           level,
           completed,
@@ -67,14 +104,6 @@ const Home = () => {
       saveData();
     }
   }, [userId, tapLeft, tapTime, totalBal, level, completed, taps]);
-
-  // Simulate loading data for the initial render
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000); // Adjust the timeout duration as needed
-    return () => clearTimeout(timer);
-  }, []); 
 
   // Countdown timer for tapTime
   useEffect(() => {

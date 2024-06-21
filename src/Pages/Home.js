@@ -7,7 +7,7 @@ import MoonAnimation from '../Animation/MoonAnimation';
 import ProgressBar from '../Component/ProgressBar';
 import TapImage from '../Component/TapImage';
 import { db } from '../firebaseConfig'; // Import your Firestore instance
-import { collection, setDoc } from 'firebase/firestore'; // Import Firestore functions
+import { doc, setDoc } from 'firebase/firestore'; // Import Firestore functions
 
 // Function to format numbers with commas and two decimal places
 const totalBalCom = (totalBal) => {
@@ -17,6 +17,7 @@ const totalBalCom = (totalBal) => {
 
 const Home = () => {
   const [userId, setUserId] = useState(null);
+  const [firstname, setFirstName] = useState(null);
   const [tapLeft, setTapLeft] = useState(1000);
   const [tapTime, setTapTime] = useState(60); // Initial tap time in seconds
   const [taps, setTaps] = useState(0);
@@ -33,6 +34,7 @@ const Home = () => {
       const user = window.Telegram.WebApp.initDataUnsafe?.user;
       if (user) {
         setUserId(user.id);
+        setFirstName(user.first_name);
       } else {
         console.error('User data is not available.');
       }
@@ -43,11 +45,10 @@ const Home = () => {
 
   // Save data to Firestore when userId changes
   useEffect(() => {
-    if (userId !== null) {
+    const saveData = async () => {
       try {
-        // Reference to the 'Game' collection and set document with userId
-        const gameRef = collection(db, 'Game');
-        const userDoc = setDoc(gameRef.doc(userId), {
+        const userDocRef = doc(db, 'Game', userId);
+        await setDoc(userDocRef, {
           tapLeft,
           tapTime,
           totalBal,
@@ -55,10 +56,15 @@ const Home = () => {
           completed,
           taps
         });
+        console.log('Data saved successfully');
       } catch (error) {
         console.error('Error saving data to Firestore:', error);
         // Handle the error, e.g., display an error message to the user
       }
+    };
+
+    if (userId) {
+      saveData();
     }
   }, [userId, tapLeft, tapTime, totalBal, level, completed, taps]);
 

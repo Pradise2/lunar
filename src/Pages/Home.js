@@ -116,7 +116,7 @@ const Home = () => {
       if (userId) {
         saveData();
       }
-    }, 1000); // Save data every 1 seconds
+    }, 10000); // Save data every 1 seconds
 
     return () => clearInterval(interval);
   }, [userId, tapLeft, tapTime, totalBal, level, completed, taps]);

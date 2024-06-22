@@ -1,14 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import './index.css';
 import App from './App';
-import { GlobalStateProvider } from './Context/GlobalStateContext';
-import { TotalBalProvider } from './Context/TotalBalContext';
+import { TotalBalProvider } from './Context/TotalBalContext'; // Adjust path based on your project structure
 
-ReactDOM.render(
-  <GlobalStateProvider>
+const { createRoot } = ReactDOM;
+
+const root = createRoot(document.getElementById('root'));
+
+root.render(
+  <React.StrictMode>
     <TotalBalProvider>
       <App />
     </TotalBalProvider>
-  </GlobalStateProvider>,
-  document.getElementById('root')
+  </React.StrictMode>
 );

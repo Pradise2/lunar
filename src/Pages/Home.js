@@ -2,38 +2,39 @@ import React, { useState, useEffect } from 'react';
 import Footer from '../Component/Footer';
 import imageList from '../utils/ImageList';
 import FormattedTime from '../Component/FormattedTime';
+import { useTotalBal } from '../Context/TotalBalContext';
 import ProgressBar from '../Component/ProgressBar';
 import TapImage from '../Component/TapImage';
+import { db } from '../firebaseConfig';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import MoonAnimation from '../Animation/MoonAnimation';
-import useGameData from '../hooks/useGameData';
 
 const totalBalCom = (totalBal) => {
   const fixedNumber = totalBal.toFixed(2);
   return fixedNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
+const defaultData = {
+  tapLeft: 1000,
+  tapTime: 300,
+  lastActiveTime: Math.floor(Date.now() / 1000),
+  totalBal: 0,
+  level: 1,
+  completed: 0,
+  taps: 0,
+};
+
 const Home = () => {
   const [userId, setUserId] = useState(null);
-  const {
-    firstname,
-    tapLeft,
-    tapTime,
-    lastActiveTime,
-    taps,
-    isLoading,
-    totalBal,
-    level,
-    completed,
-    setFirstName,
-    setTapLeft,
-    setTapTime,
-    setLastActiveTime,
-    setTaps,
-    setTotalBal,
-    setLevel,
-    setCompleted,
-    addTotalBal,
-  } = useGameData(userId);
+  const [firstname, setFirstName] = useState(null);
+  const [tapLeft, setTapLeft] = useState(defaultData.tapLeft);
+  const [tapTime, setTapTime] = useState(defaultData.tapTime);
+  const [lastActiveTime, setLastActiveTime] = useState(defaultData.lastActiveTime);
+  const [taps, setTaps] = useState(defaultData.taps);
+  const [isLoading, setIsLoading] = useState(true);
+  const { totalBal, setTotalBal, addTotalBal } = useTotalBal();
+  const [level, setLevel] = useState(defaultData.level);
+  const [completed, setCompleted] = useState(defaultData.completed);
 
   window.Telegram.WebApp.expand();
 
@@ -50,7 +51,135 @@ const Home = () => {
     } else {
       alert('Telegram WebApp script is not loaded.');
     }
-  }, [setFirstName]);
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (userId) {
+        try {
+          const savedData = localStorage.getItem(`gameData_${userId}`);
+          if (savedData) {
+            alert('Data found in local storage');
+            const parsedData = JSON.parse(savedData);
+            setTapLeft(parsedData.tapLeft);
+            setTapTime(parsedData.tapTime);
+            setLastActiveTime(parsedData.lastActiveTime);
+            setTotalBal(parsedData.totalBal);
+            setLevel(parsedData.level);
+            setCompleted(parsedData.completed);
+            setTaps(parsedData.taps);
+          } else {
+            alert('Fetching data for user from Firestore');
+            const userDocRef = doc(db, 'Game', String(userId));
+            const userDoc = await getDoc(userDocRef);
+  
+            if (userDoc.exists()) {
+              alert('User data found in Firestore');
+              const data = userDoc.data();
+              setTapLeft(data.tapLeft);
+              setLastActiveTime(data.lastActiveTime);
+              setTotalBal(data.totalBal);
+              setLevel(data.level);
+              setCompleted(data.completed);
+              setTaps(data.taps);
+  
+              // Calculate new tapTime based on offline time difference
+              const currentTime = Math.floor(Date.now() / 1000);
+              const elapsed = currentTime - data.lastActiveTime;
+              const newTapTime = data.tapTime - elapsed;
+  
+              if (newTapTime > 0) {
+                setTapTime(newTapTime);
+              } else {
+                setTapLeft(defaultData.tapLeft); // Reset tapLeft when tapTime expires
+                setTapTime(defaultData.tapTime);
+              }
+              setLastActiveTime(currentTime); // Update lastActiveTime to current time
+            } else {
+              alert('No user data found, creating new document');
+              await setDoc(userDocRef, defaultData);
+              setTapLeft(defaultData.tapLeft);
+              setTapTime(defaultData.tapTime);
+              setLastActiveTime(defaultData.lastActiveTime);
+              setTotalBal(defaultData.totalBal);
+              setLevel(defaultData.level);
+              setCompleted(defaultData.completed);
+              setTaps(defaultData.taps);
+              localStorage.setItem(`gameData_${userId}`, JSON.stringify(defaultData));
+            }
+          }
+          setIsLoading(false);
+        } catch (error) {
+          alert('Error fetching data: ' + error.message);
+          console.log('Error fetching data:', error);
+          setIsLoading(false);
+        }
+      }
+    };
+  
+    fetchData();
+  }, [userId, setTotalBal]);
+  
+
+
+  const saveData = async () => {
+    const dataToSave = {
+      tapLeft,
+      tapTime,
+      lastActiveTime: Math.floor(Date.now() / 1000), // Update lastActiveTime on save
+      totalBal,
+      level,
+      completed,
+      taps
+    };
+    try {
+      const userDocRef = doc(db, 'Game', String(userId));
+      await setDoc(userDocRef, dataToSave);
+      localStorage.setItem(`gameData_${userId}`, JSON.stringify(dataToSave));
+    } catch (error) {
+      alert('Error saving data to Firestore: ' + error.message);
+      console.log('Error saving data:', error);
+    }
+  };
+  
+
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (userId) {
+        saveData();
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      if (userId) {
+        saveData();
+      }
+    };
+  }, [userId, tapLeft, tapTime, totalBal, level, completed, taps]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTapTime((prevTapTime) => {
+        const currentTime = Math.floor(Date.now() / 1000);
+        const elapsed = currentTime - lastActiveTime;
+        const newTapTime = prevTapTime - elapsed;
+
+        if (newTapTime <= 0) {
+          setTapLeft(defaultData.tapLeft);
+          return defaultData.tapTime;
+        }
+
+        setLastActiveTime(currentTime);
+        return newTapTime;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [lastActiveTime]);
 
   return (
     <>
@@ -92,23 +221,22 @@ const Home = () => {
             setTapLeft={setTapLeft}
             tapTime={tapTime}
             setTapTime={setTapTime}
+          />
+
+          <div className="w-full justify-center">
+            <ProgressBar
+              completed={completed}
+              level={level}
+              totalLevels={9}
             />
-  
-            <div className="w-full justify-center">
-              <ProgressBar
-                completed={completed}
-                level={level}
-                totalLevels={9}
-              />
-            </div>
-            <div className="w-full max-w-md flex justify-around">
-              <Footer />
-            </div>
           </div>
-        )}
-      </>
-    );
-  };
-  
-  export default Home;
-  
+          <div className="w-full max-w-md flex justify-around">
+            <Footer />
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+export default Home;

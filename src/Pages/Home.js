@@ -111,6 +111,7 @@ const Home = () => {
           setIsLoading(false);
         } catch (error) {
           alert('Error fetching data: ' + error.message);
+          console.log('Error fetching data:', error);
           setIsLoading(false);
         }
       }
@@ -133,9 +134,10 @@ const Home = () => {
       const userDocRef = doc(db, 'Game', String(userId));
       await setDoc(userDocRef, dataToSave);
       localStorage.setItem(`gameData_${userId}`, JSON.stringify(dataToSave));
-      alert('Data saved successfully');
+      
     } catch (error) {
       alert('Error saving data to Firestore: ' + error.message);
+      console.log('Error fetching data:', error);
     }
   };
 

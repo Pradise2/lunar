@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Footer from '../Component/Footer';
 import imageList from '../utils/ImageList';
 import FormattedTime from '../Component/FormattedTime';
@@ -24,16 +24,11 @@ const defaultData = {
 };
 
 const Home = () => {
+  const [userData, setUserData] = useState({ ...defaultData });
   const [userId, setUserId] = useState(null);
   const [firstname, setFirstName] = useState(null);
-  const [tapLeft, setTapLeft] = useState(defaultData.tapLeft);
-  const [tapTime, setTapTime] = useState(defaultData.tapTime);
-  const [lastActiveTime, setLastActiveTime] = useState(defaultData.lastActiveTime);
-  const [taps, setTaps] = useState(defaultData.taps);
   const [isLoading, setIsLoading] = useState(true);
   const { totalBal, setTotalBal, addTotalBal } = useTotalBal();
-  const [level, setLevel] = useState(defaultData.level);
-  const [completed, setCompleted] = useState(defaultData.completed);
 
   window.Telegram.WebApp.expand();
 
@@ -55,14 +50,10 @@ const Home = () => {
     const fetchData = async () => {
       if (userId) {
         try {
-          const userData = await getProgress(userId);
-          setTapLeft(userData.tapLeft || defaultData.tapLeft);
-          setTapTime(userData.tapTime || defaultData.tapTime);
-          setLastActiveTime(userData.lastActiveTime || defaultData.lastActiveTime);
-          setTotalBal(userData.totalBal || defaultData.totalBal);
-          setLevel(userData.level || defaultData.level);
-          setCompleted(userData.completed || defaultData.completed);
-          setTaps(userData.taps || defaultData.taps);
+          const fetchedData = await getProgress(userId);
+          const combinedData = { ...defaultData, ...fetchedData };
+          setUserData(combinedData);
+          setTotalBal(combinedData.totalBal);
         } catch (error) {
           console.error('Error fetching user data:', error);
         } finally {
@@ -74,21 +65,17 @@ const Home = () => {
     fetchData();
   }, [userId, setTotalBal]);
 
-  const saveData = async () => {
+  const saveData = useCallback(async () => {
     try {
       await saveProgress(userId, {
-        tapLeft,
-        tapTime,
+        ...userData,
         lastActiveTime: Math.floor(Date.now() / 1000),
-        totalBal,
-        level,
-        completed,
-        taps
+        totalBal, // Make sure to include the latest totalBal from the context
       });
     } catch (error) {
       console.error('Error saving user data:', error);
     }
-  };
+  }, [userId, userData, totalBal]);
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -106,27 +93,27 @@ const Home = () => {
         saveData();
       }
     };
-  }, [userId, tapLeft, tapTime, totalBal, level, completed, taps]);
+  }, [userId, saveData]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setTapTime((prevTapTime) => {
+      setUserData((prevData) => {
         const currentTime = Math.floor(Date.now() / 1000);
-        const elapsed = currentTime - lastActiveTime;
-        const newTapTime = prevTapTime - elapsed;
+        const elapsed = currentTime - prevData.lastActiveTime;
+        const newTapTime = prevData.tapTime - elapsed;
 
         if (newTapTime <= 0) {
-          setTapLeft(defaultData.tapLeft);
-          return defaultData.tapTime;
+          return { ...prevData, tapLeft: defaultData.tapLeft, tapTime: defaultData.tapTime, lastActiveTime: currentTime };
         }
 
-        setLastActiveTime(currentTime);
-        return newTapTime;
+        return { ...prevData, tapTime: newTapTime, lastActiveTime: currentTime };
       });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [lastActiveTime]);
+  }, [userData.lastActiveTime]);
+
+  const { tapLeft, tapTime, level, completed, taps } = userData;
 
   return (
     <>
@@ -160,14 +147,14 @@ const Home = () => {
             images={imageList}
             level={level}
             taps={taps}
-            setTaps={setTaps}
-            setLevel={setLevel}
+            setTaps={(taps) => setUserData((data) => ({ ...data, taps }))}
+            setLevel={(level) => setUserData((data) => ({ ...data, level }))}
             addTotalBal={addTotalBal}
-            setCompleted={setCompleted}
+            setCompleted={(completed) => setUserData((data) => ({ ...data, completed }))}
             tapLeft={tapLeft}
-            setTapLeft={setTapLeft}
+            setTapLeft={(tapLeft) => setUserData((data) => ({ ...data, tapLeft }))}
             tapTime={tapTime}
-            setTapTime={setTapTime}
+            setTapTime={(tapTime) => setUserData((data) => ({ ...data, tapTime }))}
           />
 
           <div className="w-full justify-center">

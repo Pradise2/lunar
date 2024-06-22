@@ -54,19 +54,21 @@ const Home = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const userData = await getProgress(userId);
-        setTapLeft(userData.tapLeft);
-        setTapTime(userData.tapTime);
-        setLastActiveTime(userData.lastActiveTime);
-        setTotalBal(userData.totalBal);
-        setLevel(userData.level);
-        setCompleted(userData.completed);
-        setTaps(userData.taps);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        setIsLoading(false);
+      if (userId) {
+        try {
+          const userData = await getProgress(userId);
+          setTapLeft(userData.tapLeft);
+          setTapTime(userData.tapTime);
+          setLastActiveTime(userData.lastActiveTime);
+          setTotalBal(userData.totalBal);
+          setLevel(userData.level);
+          setCompleted(userData.completed);
+          setTaps(userData.taps);
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        } finally {
+          setIsLoading(false);
+        }
       }
     };
 

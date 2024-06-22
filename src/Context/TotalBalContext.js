@@ -25,25 +25,22 @@ export const TotalBalProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const userData = await getProgress(userId);
-        setTotalBal(userData.totalBal);
-      } catch (error) {
-        console.error('Error fetching user data:', error);
+      if (userId) {
+        try {
+          const userData = await getProgress(userId);
+          setTotalBal(userData.totalBal);
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
       }
     };
 
-    if (userId) {
-      fetchData();
-    }
+    fetchData();
   }, [userId]);
 
-  const addTotalBal = (amount) => {
-    setTotalBal((prevTotalBal) => {
-      const newTotalBal = prevTotalBal + amount;
-      saveProgress(userId, { totalBal: newTotalBal }); // Save to Firebase
-      return newTotalBal;
-    });
+  const addTotalBal = async (amount) => {
+    setTotalBal((prevTotalBal) => prevTotalBal + amount);
+    await saveProgress(userId, { totalBal: totalBal + amount });
   };
 
   return (

@@ -32,6 +32,9 @@ function createInitialUserData(userId) {
     farmTime: 60,
     isFarmActive: false,
     claimed: false,
+    addTotalBal: 0,
+    t6Value: 0,
+    taskStates: 0,
   };
 }
 

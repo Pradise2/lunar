@@ -7,6 +7,7 @@ import ProgressBar from '../Component/ProgressBar';
 import TapImage from '../Component/TapImage';
 import { db } from '../firebaseConfig';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
+import MoonAnimation from '../Animation/MoonAnimation';
 
 const totalBalCom = (totalBal) => {
   const fixedNumber = totalBal.toFixed(2);
@@ -121,7 +122,12 @@ const Home = () => {
   }, [tapTime]);
 
   return (
+    <> {isLoading && (
+         <MoonAnimation /> 
+        
+      )}
     <div className="p-7 min-h-screen bg-zinc-900 text-white flex flex-col items-center">
+         
       <div className="p-2 rounded-lg text-center w-full max-w-md">
         <p className="p-3 text-zinc-400 font-bold text-2xl ">Lunar Token</p>
         <p className="p-4 text-4xl font-bold">
@@ -169,6 +175,7 @@ const Home = () => {
         <Footer />
       </div> 
     </div>
+    </>
   );
 };
 

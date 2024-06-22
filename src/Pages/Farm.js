@@ -3,11 +3,15 @@ import Footer from '../Component/Footer';
 import FormattedTime from '../Component/FormattedTime';
 import { useTotalBal } from '../Context/TotalBalContext';
 import { db } from '../firebaseConfig';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 
 const Farm = () => {
-  const [farmTime, setFarmTime] = useState(60);
-  const [farm, setFarm] = useState(0);
+  const [farmTime, setFarmTime] = useState(() => {
+    return localStorage.getItem('farmTime') ? parseInt(localStorage.getItem('farmTime'), 10) : 60;
+  });
+  const [farm, setFarm] = useState(() => {
+    return localStorage.getItem('farm') ? parseFloat(localStorage.getItem('farm')) : 0;
+  });
   const [isFarmActive, setIsFarmActive] = useState(false);
   const [claimed, setClaimed] = useState(false);
   const farmIntervalRef = useRef(null);
@@ -42,6 +46,8 @@ const Farm = () => {
             setFarmTime(data.farmTime ?? 60);
             setIsFarmActive(data.isFarmActive ?? false);
             setClaimed(data.claimed ?? false);
+            localStorage.setItem('farm', data.farm ?? 0);
+            localStorage.setItem('farmTime', data.farmTime ?? 60);
           } else {
             await setDoc(userDocRef, {
               farm: 0,
@@ -68,6 +74,12 @@ const Farm = () => {
     return () => clearInterval(farmIntervalRef.current); // Clear interval on unmount
   }, [isFarmActive, farmTime]);
 
+  useEffect(() => {
+    localStorage.setItem('farmTime', farmTime);
+    localStorage.setItem('farm', farm);
+    saveFarmData({ farmTime, farm });
+  }, [farmTime, farm]);
+
   const saveFarmData = async (updatedData) => {
     if (userId) {
       try {
@@ -88,7 +100,12 @@ const Farm = () => {
           setIsFarmActive(false);
           return 0;
         } else {
-          setFarm((prevFarm) => prevFarm + 0.01);
+          setFarm((prevFarm) => {
+            const newFarm = prevFarm + 0.01;
+            localStorage.setItem('farm', newFarm.toFixed(2));
+            saveFarmData({ farm: newFarm });
+            return newFarm;
+          });
           return prevFarmTime - 1;
         }
       });
@@ -101,10 +118,19 @@ const Farm = () => {
     saveFarmData({ isFarmActive: true, claimed: false });
   };
 
-  const claimFarmRewards = () => {
+  const claimFarmRewards = async () => {
     clearInterval(farmIntervalRef.current);
     setIsFarmActive(false);
     addTotalBal(farm);
+    try {
+      const userDocRef = doc(db, 'Game', String(userId));
+      await updateDoc(userDocRef, {
+        totalBal: farm,
+      });
+    } catch (error) {
+      alert('Error updating total balance: ' + error.message);
+      console.log('Error updating total balance:', error);
+    }
     setFarm(0);
     setFarmTime(60);
     setClaimed(true);

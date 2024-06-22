@@ -175,18 +175,16 @@ const Tasks = () => {
       <div className='justify-around w-full max-w-md rounded-lg p-4 mb-4'>
         <div className="space-y-4">
           {TasksData && TasksData.map((task) => (
-            !completedTasks[task.id] && (
-              <TasksCom 
-                key={task.id} 
-                task={task} 
-                showStartButton={taskStates[task.id]?.showStartButton} 
-                handleA1Click={() => handleA1Click(task.id)} 
-                handleA2Click={() => handleA2Click(task.id)} 
-                handleA3Click={() => handleA3Click(task.id)} 
-                a3Class={taskStates[task.id]?.a3Class} 
-                a3Text={taskStates[task.id]?.a3Text} 
-              />
-            )
+            <TasksCom 
+              key={task.id} 
+              task={task} 
+              showStartButton={!completedTasks[task.id] && taskStates[task.id]?.showStartButton} 
+              handleA1Click={() => handleA1Click(task.id)} 
+              handleA2Click={() => handleA2Click(task.id)} 
+              handleA3Click={() => handleA3Click(task.id)} 
+              a3Class={taskStates[task.id]?.a3Class} 
+              a3Text={taskStates[task.id]?.a3Text} 
+            />
           ))}
         </div>
       </div>
@@ -196,3 +194,4 @@ const Tasks = () => {
 };
 
 export default Tasks;
+

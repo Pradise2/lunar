@@ -9,7 +9,7 @@ const Tasks = () => {
   const defaultData = {
     tasksValue: 0,
     taskStates: {},
-    completedTasks: {}, // To keep track of completed tasks
+    completedTasks: {},
   };
 
   const { addTotalBal } = useTotalBal();
@@ -18,10 +18,15 @@ const Tasks = () => {
   const [completedTasks, setCompletedTasks] = useState(defaultData.completedTasks);
   const [userId, setUserId] = useState(null);
 
-  window.Telegram.WebApp.expand();
+  useEffect(() => {
+    // Expand Telegram WebApp
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.expand();
+    }
+  }, []);
 
   useEffect(() => {
-    // Check if Telegram WebApp and user data are available
+    // Fetch user data from Telegram WebApp
     if (window.Telegram && window.Telegram.WebApp) {
       const user = window.Telegram.WebApp.initDataUnsafe?.user;
       if (user) {
@@ -51,7 +56,7 @@ const Tasks = () => {
     };
 
     fetchData();
-  }, [userId, addTotalBal]);
+  }, [userId]);
 
   const saveData = async () => {
     if (userId) {
@@ -101,7 +106,7 @@ const Tasks = () => {
         ...prevStates,
       }));
     }
-  }, []); // Empty dependency array ensures this runs only once after initial render
+  }, []);
 
   const handleA1Click = (id) => {
     setTaskStates((prevState) => ({
@@ -159,7 +164,6 @@ const Tasks = () => {
     });
   };
 
-  // Render logic
   return (
     <div className="bg-zinc-900 text-white min-h-screen flex flex-col items-center p-4 space-y-4">
       <div className="text-center">
@@ -194,4 +198,3 @@ const Tasks = () => {
 };
 
 export default Tasks;
-

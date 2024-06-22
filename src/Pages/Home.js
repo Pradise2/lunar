@@ -76,7 +76,10 @@ const Home = () => {
           console.log('No user data found, using default values');
         }
       }
-      setIsLoading(false); // Ensure this is outside the if-block
+      // Ensure this runs even if no userId or user data is found
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000); // Adding a minor delay to visualize the loading state
     };
 
     fetchData();

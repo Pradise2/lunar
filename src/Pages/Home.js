@@ -5,8 +5,7 @@ import FormattedTime from '../Component/FormattedTime';
 import { useTotalBal } from '../Context/TotalBalContext';
 import ProgressBar from '../Component/ProgressBar';
 import TapImage from '../Component/TapImage';
-import { db } from '../firebaseConfig';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { saveProgress, getProgress } from '../firebaseFunctions';
 import MoonAnimation from '../Animation/MoonAnimation';
 
 const totalBalCom = (totalBal) => {
@@ -36,112 +35,42 @@ const Home = () => {
   const [level, setLevel] = useState(defaultData.level);
   const [completed, setCompleted] = useState(defaultData.completed);
 
-  window.Telegram.WebApp.expand();
-
-  useEffect(() => {
-    if (window.Telegram && window.Telegram.WebApp) {
-      const user = window.Telegram.WebApp.initDataUnsafe?.user;
-      if (user) {
-        setUserId(user.id);
-        setFirstName(user.first_name);
-        alert(`User logged in: ${user.first_name}`);
-      } else {
-        alert('User data is not available.');
-      }
-    } else {
-      alert('Telegram WebApp script is not loaded.');
-    }
-  }, []);
-
   useEffect(() => {
     const fetchData = async () => {
-      if (userId) {
-        try {
-          const savedData = localStorage.getItem(`gameData_${userId}`);
-          if (savedData) {
-            alert('Data found in local storage');
-            const parsedData = JSON.parse(savedData);
-            setTapLeft(parsedData.tapLeft);
-            setTapTime(parsedData.tapTime);
-            setLastActiveTime(parsedData.lastActiveTime);
-            setTotalBal(parsedData.totalBal);
-            setLevel(parsedData.level);
-            setCompleted(parsedData.completed);
-            setTaps(parsedData.taps);
-          } else {
-            alert('Fetching data for user from Firestore');
-            const userDocRef = doc(db, 'Game', String(userId));
-            const userDoc = await getDoc(userDocRef);
-  
-            if (userDoc.exists()) {
-              alert('User data found in Firestore');
-              const data = userDoc.data();
-              setTapLeft(data.tapLeft);
-              setLastActiveTime(data.lastActiveTime);
-              setTotalBal(data.totalBal);
-              setLevel(data.level);
-              setCompleted(data.completed);
-              setTaps(data.taps);
-  
-              // Calculate new tapTime based on offline time difference
-              const currentTime = Math.floor(Date.now() / 1000);
-              const elapsed = currentTime - data.lastActiveTime;
-              const newTapTime = data.tapTime - elapsed;
-  
-              if (newTapTime > 0) {
-                setTapTime(newTapTime);
-              } else {
-                setTapLeft(defaultData.tapLeft); // Reset tapLeft when tapTime expires
-                setTapTime(defaultData.tapTime);
-              }
-              setLastActiveTime(currentTime); // Update lastActiveTime to current time
-            } else {
-              alert('No user data found, creating new document');
-              await setDoc(userDocRef, defaultData);
-              setTapLeft(defaultData.tapLeft);
-              setTapTime(defaultData.tapTime);
-              setLastActiveTime(defaultData.lastActiveTime);
-              setTotalBal(defaultData.totalBal);
-              setLevel(defaultData.level);
-              setCompleted(defaultData.completed);
-              setTaps(defaultData.taps);
-              localStorage.setItem(`gameData_${userId}`, JSON.stringify(defaultData));
-            }
-          }
-          setIsLoading(false);
-        } catch (error) {
-          alert('Error fetching data: ' + error.message);
-          console.log('Error fetching data:', error);
-          setIsLoading(false);
-        }
+      try {
+        const userData = await getProgress(userId);
+        setTapLeft(userData.tapLeft);
+        setTapTime(userData.tapTime);
+        setLastActiveTime(userData.lastActiveTime);
+        setTotalBal(userData.totalBal);
+        setLevel(userData.level);
+        setCompleted(userData.completed);
+        setTaps(userData.taps);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        setIsLoading(false);
       }
     };
-  
+
     fetchData();
   }, [userId, setTotalBal]);
-  
-
 
   const saveData = async () => {
-    const dataToSave = {
-      tapLeft,
-      tapTime,
-      lastActiveTime: Math.floor(Date.now() / 1000), // Update lastActiveTime on save
-      totalBal,
-      level,
-      completed,
-      taps
-    };
     try {
-      const userDocRef = doc(db, 'Game', String(userId));
-      await setDoc(userDocRef, dataToSave);
-      localStorage.setItem(`gameData_${userId}`, JSON.stringify(dataToSave));
+      await saveProgress(userId, {
+        tapLeft,
+        tapTime,
+        lastActiveTime: Math.floor(Date.now() / 1000), // Update lastActiveTime on save
+        totalBal,
+        level,
+        completed,
+        taps
+      });
     } catch (error) {
-      alert('Error saving data to Firestore: ' + error.message);
-      console.log('Error saving data:', error);
+      console.error('Error saving user data:', error);
     }
   };
-  
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {

@@ -46,57 +46,69 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       if (userId) {
-        console.log('Fetching data for user:', userId);
-        const userDocRef = doc(db, 'Game', String(userId));
-        const userDoc = await getDoc(userDocRef);
-
-        if (userDoc.exists()) {
-          const data = userDoc.data();
-          setTapLeft(data.tapLeft);
-          setTapTime(data.tapTime);
-          setLastActiveTime(data.lastActiveTime);
-          setTotalBal(data.totalBal);
-          setLevel(data.level);
-          setCompleted(data.completed);
-          setTaps(data.taps);
-
-          const currentTime = Math.floor(Date.now() / 1000);
-          const elapsed = currentTime - data.lastActiveTime;
-          const newTapTime = data.tapTime - elapsed;
-
-          if (newTapTime > 0) {
-            setTapTime(newTapTime);
-          } else {
-            // Reset tapLeft and tapTime if time has elapsed
-            setTapLeft(1000);
-            setTapTime(300);
-          }
-          setLastActiveTime(data.lastActiveTime);
+        const savedData = localStorage.getItem(`gameData_${userId}`);
+        if (savedData) {
+          const parsedData = JSON.parse(savedData);
+          setTapLeft(parsedData.tapLeft);
+          setTapTime(parsedData.tapTime);
+          setLastActiveTime(parsedData.lastActiveTime);
+          setTotalBal(parsedData.totalBal);
+          setLevel(parsedData.level);
+          setCompleted(parsedData.completed);
+          setTaps(parsedData.taps);
+          setIsLoading(false);
         } else {
-          console.log('No user data found, using default values');
+          console.log('Fetching data for user:', userId);
+          const userDocRef = doc(db, 'Game', String(userId));
+          const userDoc = await getDoc(userDocRef);
+
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            setTapLeft(data.tapLeft);
+            setTapTime(data.tapTime);
+            setLastActiveTime(data.lastActiveTime);
+            setTotalBal(data.totalBal);
+            setLevel(data.level);
+            setCompleted(data.completed);
+            setTaps(data.taps);
+
+            const currentTime = Math.floor(Date.now() / 1000);
+            const elapsed = currentTime - data.lastActiveTime;
+            const newTapTime = data.tapTime - elapsed;
+
+            if (newTapTime > 0) {
+              setTapTime(newTapTime);
+            } else {
+              // Reset tapLeft and tapTime if time has elapsed
+              setTapLeft(1000);
+              setTapTime(300);
+            }
+            setLastActiveTime(data.lastActiveTime);
+          } else {
+            console.log('No user data found, using default values');
+          }
+          setIsLoading(false);
         }
       }
-      // Ensure this runs even if no userId or user data is found
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 1000); // Adding a minor delay to visualize the loading state
     };
 
     fetchData();
   }, [userId, setTotalBal]);
 
   const saveData = async () => {
+    const dataToSave = {
+      tapLeft,
+      tapTime,
+      lastActiveTime: Math.floor(Date.now() / 1000),
+      totalBal,
+      level,
+      completed,
+      taps
+    };
     try {
       const userDocRef = doc(db, 'Game', String(userId));
-      await setDoc(userDocRef, {
-        tapLeft,
-        tapTime,
-        lastActiveTime: Math.floor(Date.now() / 1000),
-        totalBal,
-        level,
-        completed,
-        taps
-      });
+      await setDoc(userDocRef, dataToSave);
+      localStorage.setItem(`gameData_${userId}`, JSON.stringify(dataToSave));
       console.log('Data saved successfully');
     } catch (error) {
       console.error('Error saving data to Firestore:', error);

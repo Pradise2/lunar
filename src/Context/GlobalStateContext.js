@@ -20,6 +20,8 @@ export const GlobalStateProvider = ({ children }) => {
 
   const [userId, setUserId] = useState(null);
 
+  window.Telegram.WebApp.expand();
+
   useEffect(() => {
     if (window.Telegram && window.Telegram.WebApp) {
       const user = window.Telegram.WebApp.initDataUnsafe?.user;

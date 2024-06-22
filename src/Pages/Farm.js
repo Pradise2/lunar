@@ -42,17 +42,19 @@ const Farm = () => {
     const fetchData = async () => {
       try {
         const userData = await getProgress(userId);
-        const currentTime = Math.floor(Date.now() / 1000);
-        const elapsed = currentTime - userData.lastActiveFarmTime;
+        if (userData) {
+          const currentTime = Math.floor(Date.now() / 1000);
+          const elapsed = currentTime - userData.lastActiveFarmTime;
 
-        setLastActiveFarmTime(currentTime);
-        setClaimed(userData.claimed);
-        setFarm(userData.farm + (userData.isFarmActive ? (elapsed * 0.01) : 0));
-        setFarmTime(userData.farmTime - elapsed > 0 ? userData.farmTime - elapsed : 0);
-        setIsFarmActive(userData.isFarmActive && userData.farmTime - elapsed > 0);
+          setLastActiveFarmTime(currentTime);
+          setClaimed(userData.claimed);
+          setFarm(userData.farm + (userData.isFarmActive ? (elapsed * 0.01) : 0));
+          setFarmTime(userData.farmTime - elapsed > 0 ? userData.farmTime - elapsed : 0);
+          setIsFarmActive(userData.isFarmActive && userData.farmTime - elapsed > 0);
 
-        if (userData.isFarmActive && userData.farmTime - elapsed > 0) {
-          startFarmInterval();
+          if (userData.isFarmActive && userData.farmTime - elapsed > 0) {
+            startFarmInterval();
+          }
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -128,7 +130,7 @@ const Farm = () => {
     setFarm(0);
     setFarmTime(60);
     setClaimed(true);
-    saveData();
+    saveData(); // Persist data immediately after claiming
   };
 
   const handleButtonClick = () => {

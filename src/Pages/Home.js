@@ -225,7 +225,7 @@ const Home = () => {
           </div>
           <div className="w-full max-w-md flex justify-around">
             <Footer />
-          </div>
+            </div>
         </div>
       )}
     </>
@@ -233,3 +233,4 @@ const Home = () => {
 };
 
 export default Home;
+

@@ -51,7 +51,7 @@ const Tasks = () => {
     };
 
     fetchData();
-  }, [userId]);
+  }, [userId, addTotalBal]);
 
   const saveData = async () => {
     if (userId) {

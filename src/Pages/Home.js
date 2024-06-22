@@ -61,12 +61,8 @@ const Home = () => {
           if (savedData) {
             alert('Data found in local storage');
             const parsedData = JSON.parse(savedData);
-            const currentTime = Math.floor(Date.now() / 1000);
-            const elapsed = currentTime - parsedData.lastActiveTime;
-            const newTapTime = parsedData.tapTime - elapsed;
-
             setTapLeft(parsedData.tapLeft);
-            setTapTime(newTapTime > 0 ? newTapTime : defaultData.tapTime);
+            setTapTime(parsedData.tapTime);
             setLastActiveTime(parsedData.lastActiveTime);
             setTotalBal(parsedData.totalBal);
             setLevel(parsedData.level);
@@ -80,17 +76,25 @@ const Home = () => {
             if (userDoc.exists()) {
               alert('User data found in Firestore');
               const data = userDoc.data();
-              const currentTime = Math.floor(Date.now() / 1000);
-              const elapsed = currentTime - data.lastActiveTime;
-              const newTapTime = data.tapTime - elapsed;
-
               setTapLeft(data.tapLeft);
-              setTapTime(newTapTime > 0 ? newTapTime : defaultData.tapTime);
+              setTapTime(data.tapTime);
               setLastActiveTime(data.lastActiveTime);
               setTotalBal(data.totalBal);
               setLevel(data.level);
               setCompleted(data.completed);
               setTaps(data.taps);
+
+              const currentTime = Math.floor(Date.now() / 1000);
+              const elapsed = currentTime - data.lastActiveTime;
+              const newTapTime = data.tapTime - elapsed;
+
+              if (newTapTime > 0) {
+                setTapTime(newTapTime);
+              } else {
+                setTapLeft(defaultData.tapLeft);
+                setTapTime(defaultData.tapTime);
+              }
+              setLastActiveTime(data.lastActiveTime);
             } else {
               alert('No user data found, creating new document');
               await setDoc(userDocRef, defaultData);

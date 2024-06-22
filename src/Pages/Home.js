@@ -17,7 +17,6 @@ const defaultData = {
   tapLeft: 1000,
   tapTime: 300,
   lastActiveTime: Math.floor(Date.now() / 1000),
-  totalBal: 0,
   level: 1,
   completed: 0,
   taps: 0,
@@ -53,7 +52,7 @@ const Home = () => {
           const fetchedData = await getProgress(userId);
           const combinedData = { ...defaultData, ...fetchedData };
           setUserData(combinedData);
-          setTotalBal(combinedData.totalBal);
+          setTotalBal(fetchedData.totalBal || 0); // Ensure the context is updated with fetched data
         } catch (error) {
           console.error('Error fetching user data:', error);
         } finally {
@@ -70,7 +69,7 @@ const Home = () => {
       await saveProgress(userId, {
         ...userData,
         lastActiveTime: Math.floor(Date.now() / 1000),
-        totalBal, // Make sure to include the latest totalBal from the context
+        totalBal, // Include the latest totalBal from the context
       });
     } catch (error) {
       console.error('Error saving user data:', error);

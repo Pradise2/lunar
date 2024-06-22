@@ -6,10 +6,9 @@ import { useTotalBal } from '../Context/TotalBalContext';
 import MoonAnimation from '../Animation/MoonAnimation';
 import ProgressBar from '../Component/ProgressBar';
 import TapImage from '../Component/TapImage';
-import { db } from '../firebaseConfig'; // Import your Firestore instance
-import { doc, setDoc, getDoc } from 'firebase/firestore'; // Import Firestore functions
+import { db } from '../firebaseConfig';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
-// Function to format numbers with commas and two decimal places
 const totalBalCom = (totalBal) => {
   const fixedNumber = totalBal.toFixed(2);
   return fixedNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -19,8 +18,8 @@ const Home = () => {
   const [userId, setUserId] = useState(null);
   const [firstname, setFirstName] = useState(null);
   const [tapLeft, setTapLeft] = useState(1000);
-  const [tapTime, setTapTime] = useState(300); // Initial tap time set to 5 minutes (300 seconds)
-  const [lastActiveTime, setLastActiveTime] = useState(null); // To store the last active timestamp
+  const [tapTime, setTapTime] = useState(300);
+  const [lastActiveTime, setLastActiveTime] = useState(null);
   const [taps, setTaps] = useState(0);
   const [isLoading, setIsLoading] = useState(true); 
   const { totalBal, setTotalBal, addTotalBal } = useTotalBal(); 
@@ -31,12 +30,12 @@ const Home = () => {
   window.Telegram.WebApp.expand();
 
   useEffect(() => {
-    // Check if Telegram WebApp and user data are available
     if (window.Telegram && window.Telegram.WebApp) {
       const user = window.Telegram.WebApp.initDataUnsafe?.user;
       if (user) {
         setUserId(user.id);
         setFirstName(user.first_name);
+        console.log(`User logged in: ${user.first_name}`);
       } else {
         console.error('User data is not available.');
       }
@@ -46,9 +45,9 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    // Function to fetch user data from Firestore
     const fetchData = async () => {
       if (userId) {
+        console.log('Fetching data for user:', userId);
         const userDocRef = doc(db, 'Game', String(userId));
         const userDoc = await getDoc(userDocRef);
 
@@ -62,7 +61,6 @@ const Home = () => {
           setCompleted(data.completed);
           setTaps(data.taps);
 
-          // Calculate remaining tap time based on last active time
           const currentTime = Math.floor(Date.now() / 1000);
           const elapsed = currentTime - data.lastActiveTime;
           const newTapTime = data.tapTime - elapsed;
@@ -71,24 +69,25 @@ const Home = () => {
             setTapTime(newTapTime);
           } else {
             setTapLeft(1000);
-            setTapTime(300); // Reset tapTime to 5 minutes
+            setTapTime(300);
           }
+        } else {
+          console.log('No user data found, using default values');
         }
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     fetchData();
   }, [userId, setTotalBal]);
 
-  // Function to save data to Firestore
   const saveData = async () => {
     try {
       const userDocRef = doc(db, 'Game', String(userId));
       await setDoc(userDocRef, {
         tapLeft,
         tapTime,
-        lastActiveTime: Math.floor(Date.now() / 1000), // Save the current timestamp
+        lastActiveTime: Math.floor(Date.now() / 1000),
         totalBal,
         level,
         completed,
@@ -97,11 +96,10 @@ const Home = () => {
       console.log('Data saved successfully');
     } catch (error) {
       console.error('Error saving data to Firestore:', error);
-      alert(`Error saving data: ${error.message}`); // Added for better error visibility
+      alert(`Error saving data: ${error.message}`);
     }
   };
 
-  // Save data on unmount
   useEffect(() => {
     return () => {
       if (userId) {
@@ -110,43 +108,39 @@ const Home = () => {
     };
   }, [userId, tapLeft, tapTime, totalBal, level, completed, taps]);
 
-  // Auto-save data at regular intervals
   useEffect(() => {
     const interval = setInterval(() => {
       if (userId) {
         saveData();
       }
-    }, 10000); // Save data every 10 seconds
+    }, 10000);
 
     return () => clearInterval(interval);
   }, [userId, tapLeft, tapTime, totalBal, level, completed, taps]);
 
-  // Countdown timer for tapTime
   useEffect(() => {
     if (tapTime > 0) {
       const interval = setInterval(() => {
         setTapTime(prevTapTime => prevTapTime - 1);
-      }, 1000); 
+      }, 1000);
       return () => clearInterval(interval);
     } else {
       setTapLeft(1000);
-      setTapTime(300); // Reset tapTime to 5 minutes
+      setTapTime(300);
     }
   }, [tapTime]);
 
-  // Show MoonAnimation for 6 seconds after user logs in
   useEffect(() => {
     if (userId) {
       setShowAnimation(true);
       const timer = setTimeout(() => {
         setShowAnimation(false);
-      }, 6000); // 6 seconds
+      }, 6000);
 
       return () => clearTimeout(timer);
     }
   }, [userId]);
 
-  // Show loading animation until data is fetched
   if (isLoading || showAnimation) {
     return <MoonAnimation />;
   }

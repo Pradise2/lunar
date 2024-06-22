@@ -6,7 +6,7 @@ import Footer from "../Component/Footer"
 
 const Tasks = () => {
   const { addTotalBal } = useTotalBal();
-  const [t6Value, setT6Value] = useState(0); // Initial value of t6
+  const [tasksValue, setTasksValue] = useState(0); // Initial value of t6
   const [taskStates, setTaskStates] = useState({});
 
   // useEffect to initialize taskStates when TasksData is available
@@ -64,7 +64,7 @@ const Tasks = () => {
         const task = TasksData.find(task => task.id === id);
         const rewardValue = parseInt(task.reward.replace(/\D/g, ''), 10); // Extract numerical reward value
         addTotalBal(rewardValue, 'task'); // Update totalBal using addTotalBal from context with 'task' source
-        setT6Value((prevValue) => prevValue + rewardValue); // Update t6Value
+        setTasksValue((prevValue) => prevValue + rewardValue); // Update t6Value
         setTaskStates((prevState) => ({
           ...prevState,
           [id]: {
@@ -85,7 +85,7 @@ const Tasks = () => {
         <p className="text-zinc-400 mt-2">But hey, only qualified actions unlock the Lunar galaxy! ✨</p>
         <div className="w-full rounded-lg p-2 mb-1">
           <p id="T6" className="text-center text-3xl font-bold">
-            {t6Value.toLocaleString()}&nbsp;<span className="text-purple-400">Lunar</span>
+            {tasksValue.toLocaleString()}&nbsp;<span className="text-purple-400">Lunar</span>
           </p>
         </div>
       </div>

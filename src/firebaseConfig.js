@@ -33,7 +33,7 @@ function createInitialUserData(userId) {
     isFarmActive: false,
     claimed: false,
     addTotalBal: 0,
-    t6Value: 0,
+    tasksValue: 0,
     taskStates: 0,
   };
 }

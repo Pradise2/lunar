@@ -38,7 +38,6 @@ const Home = () => {
   window.Telegram.WebApp.expand();
 
   useEffect(() => {
-    // Check if Telegram WebApp and user data are available
     if (window.Telegram && window.Telegram.WebApp) {
       const user = window.Telegram.WebApp.initDataUnsafe?.user;
       if (user) {
@@ -57,13 +56,13 @@ const Home = () => {
       if (userId) {
         try {
           const userData = await getProgress(userId);
-          setTapLeft(userData.tapLeft);
-          setTapTime(userData.tapTime);
-          setLastActiveTime(userData.lastActiveTime);
-          setTotalBal(userData.totalBal);
-          setLevel(userData.level);
-          setCompleted(userData.completed);
-          setTaps(userData.taps);
+          setTapLeft(userData.tapLeft || defaultData.tapLeft);
+          setTapTime(userData.tapTime || defaultData.tapTime);
+          setLastActiveTime(userData.lastActiveTime || defaultData.lastActiveTime);
+          setTotalBal(userData.totalBal || defaultData.totalBal);
+          setLevel(userData.level || defaultData.level);
+          setCompleted(userData.completed || defaultData.completed);
+          setTaps(userData.taps || defaultData.taps);
         } catch (error) {
           console.error('Error fetching user data:', error);
         } finally {
@@ -80,7 +79,7 @@ const Home = () => {
       await saveProgress(userId, {
         tapLeft,
         tapTime,
-        lastActiveTime: Math.floor(Date.now() / 1000), // Update lastActiveTime on save
+        lastActiveTime: Math.floor(Date.now() / 1000),
         totalBal,
         level,
         completed,

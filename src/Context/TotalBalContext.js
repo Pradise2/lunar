@@ -10,7 +10,6 @@ export const TotalBalProvider = ({ children }) => {
   const [userId, setUserId] = useState(null);
 
   useEffect(() => {
-    // Check if Telegram WebApp and user data are available
     if (window.Telegram && window.Telegram.WebApp) {
       const user = window.Telegram.WebApp.initDataUnsafe?.user;
       if (user) {
@@ -28,7 +27,7 @@ export const TotalBalProvider = ({ children }) => {
       if (userId) {
         try {
           const userData = await getProgress(userId);
-          setTotalBal(userData.totalBal);
+          setTotalBal(userData.totalBal || 0);
         } catch (error) {
           console.error('Error fetching user data:', error);
         }
@@ -39,8 +38,11 @@ export const TotalBalProvider = ({ children }) => {
   }, [userId]);
 
   const addTotalBal = async (amount) => {
-    setTotalBal((prevTotalBal) => prevTotalBal + amount);
-    await saveProgress(userId, { totalBal: totalBal + amount });
+    setTotalBal((prevTotalBal) => {
+      const newTotalBal = prevTotalBal + amount;
+      saveProgress(userId, { totalBal: newTotalBal });
+      return newTotalBal;
+    });
   };
 
   return (

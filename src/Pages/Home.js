@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Footer from '../Component/Footer';
 import imageList from '../utils/ImageList';
 import FormattedTime from '../Component/FormattedTime';
-import { useTotalBal } from '../Context/TotalBalContext'; 
+import { useTotalBal } from '../Context/TotalBalContext';
 import ProgressBar from '../Component/ProgressBar';
 import TapImage from '../Component/TapImage';
 import { db } from '../firebaseConfig';
@@ -21,8 +21,8 @@ const Home = () => {
   const [tapTime, setTapTime] = useState(300);
   const [lastActiveTime, setLastActiveTime] = useState(null);
   const [taps, setTaps] = useState(0);
-  const [isLoading, setIsLoading] = useState(true); 
-  const { totalBal, setTotalBal, addTotalBal } = useTotalBal(); 
+  const [isLoading, setIsLoading] = useState(true);
+  const { totalBal, setTotalBal, addTotalBal } = useTotalBal();
   const [level, setLevel] = useState(1);
   const [completed, setCompleted] = useState(0);
 
@@ -75,8 +75,8 @@ const Home = () => {
         } else {
           console.log('No user data found, using default values');
         }
-        setIsLoading(false);
       }
+      setIsLoading(false); // Ensure this is outside the if-block
     };
 
     fetchData();
@@ -122,59 +122,59 @@ const Home = () => {
   }, [tapTime]);
 
   return (
-    <> {isLoading && (
-         <MoonAnimation /> 
-        
-      )}
-    <div className="p-7 min-h-screen bg-zinc-900 text-white flex flex-col items-center">
-         
-      <div className="p-2 rounded-lg text-center w-full max-w-md">
-        <p className="p-3 text-zinc-400 font-bold text-2xl ">Lunar Token</p>
-        <p className="p-4 text-4xl font-bold">
-          {totalBalCom(totalBal)} <span className="text-purple-400">lunar</span>
-        </p>
-      </div>
-      
-      <div className="text-center space-y-2">
-        <p className="text-zinc-400">
-          Won't stop! Tap time shows refill, {userId ? `${userId} ` : ''} but the fun won’t flop! <span className="text-yellow-400">👍</span>
-        </p>
-        <div className="flex justify-center space-x-4">
-          <div className="bg-purple-800 p-2 rounded-lg flex">
-            <p>{tapLeft} taps left</p>
+    <>
+      {isLoading ? (
+        <MoonAnimation />
+      ) : (
+        <div className="p-7 min-h-screen bg-zinc-900 text-white flex flex-col items-center">
+          <div className="p-2 rounded-lg text-center w-full max-w-md">
+            <p className="p-3 text-zinc-400 font-bold text-2xl">Lunar Token</p>
+            <p className="p-4 text-4xl font-bold">
+              {totalBalCom(totalBal)} <span className="text-purple-400">lunar</span>
+            </p>
           </div>
-          <div className="bg-yellow-800 p-2 rounded-lg flex items-center space-x-2">
-            <span className="material-icons">access_time</span>
-            <p><FormattedTime time={tapTime} /></p>
+
+          <div className="text-center space-y-2">
+            <p className="text-zinc-400">
+              Won't stop! Tap time shows refill, {userId ? `${userId} ` : ''} but the fun won’t flop! <span className="text-yellow-400">👍</span>
+            </p>
+            <div className="flex justify-center space-x-4">
+              <div className="bg-purple-800 p-2 rounded-lg flex">
+                <p>{tapLeft} taps left</p>
+              </div>
+              <div className="bg-yellow-800 p-2 rounded-lg flex items-center space-x-2">
+                <span className="material-icons">access_time</span>
+                <p><FormattedTime time={tapTime} /></p>
+              </div>
+            </div>
+          </div>
+
+          <TapImage
+            images={imageList}
+            level={level}
+            taps={taps}
+            setTaps={setTaps}
+            setLevel={setLevel}
+            addTotalBal={addTotalBal}
+            setCompleted={setCompleted}
+            tapLeft={tapLeft}
+            setTapLeft={setTapLeft}
+            tapTime={tapTime}
+            setTapTime={setTapTime}
+          />
+
+          <div className="w-full justify-center">
+            <ProgressBar
+              completed={completed}
+              level={level}
+              totalLevels={9}
+            />
+          </div>
+          <div className="w-full max-w-md flex justify-around">
+            <Footer />
           </div>
         </div>
-      </div>
-
-      <TapImage
-        images={imageList}
-        level={level}
-        taps={taps}
-        setTaps={setTaps}
-        setLevel={setLevel}
-        addTotalBal={addTotalBal}
-        setCompleted={setCompleted}
-        tapLeft={tapLeft}
-        setTapLeft={setTapLeft}
-        tapTime={tapTime}
-        setTapTime={setTapTime}
-      />
-
-      <div className="w-full justify-center">
-        <ProgressBar
-          completed={completed}
-          level={level}
-          totalLevels={9}
-        />
-      </div>
-      <div className="w-full max-w-md flex justify-around">
-        <Footer />
-      </div> 
-    </div>
+      )}
     </>
   );
 };

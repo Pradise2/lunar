@@ -5,7 +5,7 @@ import FormattedTime from '../Component/FormattedTime';
 import { useTotalBal } from '../Context/TotalBalContext';
 import ProgressBar from '../Component/ProgressBar';
 import TapImage from '../Component/TapImage';
-import { saveProgress, getProgress } from '../firebaseFunctions';
+import { saveProgress, getProgress } from '../firebaseConfig';
 import MoonAnimation from '../Animation/MoonAnimation';
 
 const totalBalCom = (totalBal) => {

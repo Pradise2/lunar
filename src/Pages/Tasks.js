@@ -2,99 +2,49 @@ import React, { useState, useEffect } from 'react';
 import TasksCom from '../Component/TasksCom';
 import TasksData from '../Component/TasksData';
 import { useTotalBal } from '../Context/TotalBalContext';
-import { db } from '../firebaseConfig';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import Footer from "../Component/Footer";
+import Footer from "../Component/Footer"
 
 const Tasks = () => {
   const { addTotalBal } = useTotalBal();
-  const [t6Value, setT6Value] = useState(0);
+  const [t6Value, setT6Value] = useState(0); // Initial value of t6
   const [taskStates, setTaskStates] = useState({});
-  const [userId, setUserId] = useState(null);
 
-  window.Telegram.WebApp.expand();
-
+  // useEffect to initialize taskStates when TasksData is available
   useEffect(() => {
-    if (window.Telegram && window.Telegram.WebApp) {
-      const user = window.Telegram.WebApp.initDataUnsafe?.user;
-      if (user) {
-        setUserId(user.id);
-      } else {
-        alert('User data is not available.');
-      }
-    } else {
-      alert('Telegram WebApp script is not loaded.');
-    }
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (userId) {
-        try {
-          const userDocRef = doc(db, 'Game', String(userId));
-          const userDoc = await getDoc(userDocRef);
-
-          if (userDoc.exists()) {
-            const data = userDoc.data();
-            setT6Value(data.t6Value ?? 0);
-            setTaskStates(data.taskStates ?? {});
-          } else {
-            await setDoc(userDocRef, { t6Value: 0, taskStates: {} });
-          }
-        } catch (error) {
-          alert('Error fetching task data: ' + error.message);
-          console.log('Error fetching task data:', error);
-        }
-      }
-    };
-
-    fetchData();
-  }, [userId]);
-
-  const saveTaskData = async (updatedTaskStates) => {
-    if (userId) {
-      const dataToSave = {
-        t6Value,
-        taskStates: updatedTaskStates,
-      };
-      try {
-        const userDocRef = doc(db, 'Game', String(userId));
-        await setDoc(userDocRef, dataToSave, { merge: true });
-      } catch (error) {
-        alert('Error saving task data to Firestore: ' + error.message);
-        console.log('Error saving task data:', error);
-      }
-    }
-  };
-
-  const handleA1Click = (id) => {
-    setTaskStates((prevState) => {
-      const updatedTaskStates = {
-        ...prevState,
-        [id]: {
-          ...prevState[id],
-          showStartButton: false,
+    if (TasksData) {
+      const initialState = TasksData.reduce((acc, task) => {
+        acc[task.id] = {
+          showStartButton: true,
           a3Text: 'Check',
           a3Class: 'bg-purple-500',
-        },
-      };
-      saveTaskData(updatedTaskStates);
-      return updatedTaskStates;
-    });
+          claimClicked: false,
+        };
+        return acc;
+      }, {});
+      setTaskStates(initialState);
+    }
+  }, []); // Empty dependency array ensures this runs only once after initial render
+
+  const handleA1Click = (id) => {
+    setTaskStates((prevState) => ({
+      ...prevState,
+      [id]: {
+        ...prevState[id],
+        showStartButton: false,
+        a3Text: 'Check',
+        a3Class: 'bg-purple-500',
+      },
+    }));
   };
 
   const handleA2Click = (id) => {
-    setTaskStates((prevState) => {
-      const updatedTaskStates = {
-        ...prevState,
-        [id]: {
-          ...prevState[id],
-          a3Class: 'bg-blue-500',
-        },
-      };
-      saveTaskData(updatedTaskStates);
-      return updatedTaskStates;
-    });
+    setTaskStates((prevState) => ({
+      ...prevState,
+      [id]: {
+        ...prevState[id],
+        a3Class: 'bg-blue-500',
+      },
+    }));
   };
 
   const handleA3Click = (id) => {
@@ -102,37 +52,32 @@ const Tasks = () => {
       const taskState = prevState[id];
       if (taskState.a3Class === 'bg-blue-500' && taskState.a3Text !== 'Claim') {
         setTimeout(() => {
-          setTaskStates((prevState) => {
-            const updatedTaskStates = {
-              ...prevState,
-              [id]: {
-                ...prevState[id],
-                a3Text: 'Claim',
-              },
-            };
-            saveTaskData(updatedTaskStates);
-            return updatedTaskStates;
-          });
+          setTaskStates((prevState) => ({
+            ...prevState,
+            [id]: {
+              ...prevState[id],
+              a3Text: 'Claim',
+            },
+          }));
         }, 10000);
       } else if (taskState.a3Text === 'Claim' && !taskState.claimClicked) {
         const task = TasksData.find(task => task.id === id);
-        const rewardValue = parseInt(task.reward.replace(/\D/g, ''), 10);
-        addTotalBal(rewardValue, 'task');
-        setT6Value((prevValue) => prevValue + rewardValue);
-        const updatedTaskStates = {
+        const rewardValue = parseInt(task.reward.replace(/\D/g, ''), 10); // Extract numerical reward value
+        addTotalBal(rewardValue, 'task'); // Update totalBal using addTotalBal from context with 'task' source
+        setT6Value((prevValue) => prevValue + rewardValue); // Update t6Value
+        setTaskStates((prevState) => ({
           ...prevState,
           [id]: {
             ...prevState[id],
             claimClicked: true,
           },
-        };
-        saveTaskData(updatedTaskStates);
-        return updatedTaskStates;
+        }));
       }
       return prevState;
     });
   };
 
+  // Render logic
   return (
     <div className="bg-zinc-900 text-white min-h-screen flex flex-col items-center p-4 space-y-4">
       <div className="text-center">
@@ -145,7 +90,7 @@ const Tasks = () => {
         </div>
       </div>
 
-      <div className='justify-around w-full max-w-md rounded-lg p-4 mb-4'>
+      <div className=' justify-around w-full max-w-md rounded-lg p-4 mb-4 '>
         <div className="space-y-4">
           {TasksData && TasksData.map((task) => (
             <TasksCom 

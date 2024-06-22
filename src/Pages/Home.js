@@ -92,24 +92,23 @@ const Home = () => {
             setTapLeft={setTapLeft}
             tapTime={tapTime}
             setTapTime={setTapTime}
-          />
-
-          <div className="w-full justify-center">
-            <ProgressBar
-              completed={completed}
-              level={level}
-              totalLevels={9}
             />
+  
+            <div className="w-full justify-center">
+              <ProgressBar
+                completed={completed}
+                level={level}
+                totalLevels={9}
+              />
+            </div>
+            <div className="w-full max-w-md flex justify-around">
+              <Footer />
+            </div>
           </div>
-          <div className="w-full max-w-md flex justify-around">
-            <Footer />
-          </div>
-        </div>
-      )}
-    </>
-  );
-};
-
-export default Home;
-
-           
+        )}
+      </>
+    );
+  };
+  
+  export default Home;
+  

@@ -14,17 +14,27 @@ const totalBalCom = (totalBal) => {
   return fixedNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
+const defaultData = {
+  tapLeft: 1000,
+  tapTime: 300,
+  lastActiveTime: Math.floor(Date.now() / 1000),
+  totalBal: 0,
+  level: 1,
+  completed: 0,
+  taps: 0,
+};
+
 const Home = () => {
   const [userId, setUserId] = useState(null);
   const [firstname, setFirstName] = useState(null);
-  const [tapLeft, setTapLeft] = useState(1000);
-  const [tapTime, setTapTime] = useState(300);
-  const [lastActiveTime, setLastActiveTime] = useState(null);
-  const [taps, setTaps] = useState(0);
+  const [tapLeft, setTapLeft] = useState(defaultData.tapLeft);
+  const [tapTime, setTapTime] = useState(defaultData.tapTime);
+  const [lastActiveTime, setLastActiveTime] = useState(defaultData.lastActiveTime);
+  const [taps, setTaps] = useState(defaultData.taps);
   const [isLoading, setIsLoading] = useState(true);
   const { totalBal, setTotalBal, addTotalBal } = useTotalBal();
-  const [level, setLevel] = useState(1);
-  const [completed, setCompleted] = useState(0);
+  const [level, setLevel] = useState(defaultData.level);
+  const [completed, setCompleted] = useState(defaultData.completed);
 
   window.Telegram.WebApp.expand();
 
@@ -56,7 +66,6 @@ const Home = () => {
           setLevel(parsedData.level);
           setCompleted(parsedData.completed);
           setTaps(parsedData.taps);
-          setIsLoading(false);
         } else {
           console.log('Fetching data for user:', userId);
           const userDocRef = doc(db, 'Game', String(userId));
@@ -80,15 +89,24 @@ const Home = () => {
               setTapTime(newTapTime);
             } else {
               // Reset tapLeft and tapTime if time has elapsed
-              setTapLeft(1000);
-              setTapTime(300);
+              setTapLeft(defaultData.tapLeft);
+              setTapTime(defaultData.tapTime);
             }
             setLastActiveTime(data.lastActiveTime);
           } else {
-            console.log('No user data found, using default values');
+            console.log('No user data found, creating new document');
+            await setDoc(userDocRef, defaultData);
+            setTapLeft(defaultData.tapLeft);
+            setTapTime(defaultData.tapTime);
+            setLastActiveTime(defaultData.lastActiveTime);
+            setTotalBal(defaultData.totalBal);
+            setLevel(defaultData.level);
+            setCompleted(defaultData.completed);
+            setTaps(defaultData.taps);
+            localStorage.setItem(`gameData_${userId}`, JSON.stringify(defaultData));
           }
-          setIsLoading(false);
         }
+        setIsLoading(false);
       }
     };
 
@@ -131,8 +149,8 @@ const Home = () => {
       }, 1000);
       return () => clearInterval(interval);
     } else {
-      setTapLeft(1000);
-      setTapTime(300);
+      setTapLeft(defaultData.tapLeft);
+      setTapTime(defaultData.tapTime);
     }
   }, [tapTime]);
 

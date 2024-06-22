@@ -72,29 +72,29 @@ const Home = () => {
             alert('Fetching data for user from Firestore');
             const userDocRef = doc(db, 'Game', String(userId));
             const userDoc = await getDoc(userDocRef);
-
+  
             if (userDoc.exists()) {
               alert('User data found in Firestore');
               const data = userDoc.data();
               setTapLeft(data.tapLeft);
-              setTapTime(data.tapTime);
               setLastActiveTime(data.lastActiveTime);
               setTotalBal(data.totalBal);
               setLevel(data.level);
               setCompleted(data.completed);
               setTaps(data.taps);
-
+  
+              // Calculate new tapTime based on offline time difference
               const currentTime = Math.floor(Date.now() / 1000);
               const elapsed = currentTime - data.lastActiveTime;
               const newTapTime = data.tapTime - elapsed;
-
+  
               if (newTapTime > 0) {
                 setTapTime(newTapTime);
               } else {
-                setTapLeft(defaultData.tapLeft);
+                setTapLeft(defaultData.tapLeft); // Reset tapLeft when tapTime expires
                 setTapTime(defaultData.tapTime);
               }
-              setLastActiveTime(data.lastActiveTime);
+              setLastActiveTime(currentTime); // Update lastActiveTime to current time
             } else {
               alert('No user data found, creating new document');
               await setDoc(userDocRef, defaultData);
@@ -116,15 +116,17 @@ const Home = () => {
         }
       }
     };
-
+  
     fetchData();
   }, [userId, setTotalBal]);
+  
+
 
   const saveData = async () => {
     const dataToSave = {
       tapLeft,
       tapTime,
-      lastActiveTime: Math.floor(Date.now() / 1000),
+      lastActiveTime: Math.floor(Date.now() / 1000), // Update lastActiveTime on save
       totalBal,
       level,
       completed,
@@ -139,6 +141,7 @@ const Home = () => {
       console.log('Error saving data:', error);
     }
   };
+  
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {

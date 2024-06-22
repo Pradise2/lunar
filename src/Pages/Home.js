@@ -134,7 +134,6 @@ const Home = () => {
       const userDocRef = doc(db, 'Game', String(userId));
       await setDoc(userDocRef, dataToSave);
       localStorage.setItem(`gameData_${userId}`, JSON.stringify(dataToSave));
-      
     } catch (error) {
       alert('Error saving data to Firestore: ' + error.message);
       console.log('Error fetching data:', error);
@@ -142,7 +141,17 @@ const Home = () => {
   };
 
   useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (userId) {
+        saveData();
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
     return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
       if (userId) {
         saveData();
       }
@@ -152,12 +161,16 @@ const Home = () => {
   useEffect(() => {
     if (tapTime > 0) {
       const interval = setInterval(() => {
-        setTapTime(prevTapTime => prevTapTime - 1);
+        setTapTime((prevTapTime) => {
+          const newTapTime = prevTapTime - 1;
+          if (newTapTime <= 0) {
+            setTapLeft(defaultData.tapLeft);
+            return defaultData.tapTime;
+          }
+          return newTapTime;
+        });
       }, 1000);
       return () => clearInterval(interval);
-    } else {
-      setTapLeft(defaultData.tapLeft);
-      setTapTime(defaultData.tapTime);
     }
   }, [tapTime]);
 

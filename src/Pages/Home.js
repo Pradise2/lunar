@@ -3,7 +3,6 @@ import Footer from '../Component/Footer';
 import imageList from '../utils/ImageList';
 import FormattedTime from '../Component/FormattedTime';
 import { useTotalBal } from '../Context/TotalBalContext'; 
-import MoonAnimation from '../Animation/MoonAnimation';
 import ProgressBar from '../Component/ProgressBar';
 import TapImage from '../Component/TapImage';
 import { db } from '../firebaseConfig';
@@ -25,7 +24,6 @@ const Home = () => {
   const { totalBal, setTotalBal, addTotalBal } = useTotalBal(); 
   const [level, setLevel] = useState(1);
   const [completed, setCompleted] = useState(0);
-  const [showAnimation, setShowAnimation] = useState(true);
 
   window.Telegram.WebApp.expand();
 
@@ -130,20 +128,7 @@ const Home = () => {
     }
   }, [tapTime]);
 
-  useEffect(() => {
-    if (userId) {
-      setShowAnimation(true);
-      const timer = setTimeout(() => {
-        setShowAnimation(false);
-      }, 6000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [userId]);
-
-  if (isLoading || showAnimation) {
-    return <MoonAnimation />;
-  }
+ 
 
   return (
     <div className="p-7 min-h-screen bg-zinc-900 text-white flex flex-col items-center">

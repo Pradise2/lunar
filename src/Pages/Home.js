@@ -35,6 +35,23 @@ const Home = () => {
   const [level, setLevel] = useState(defaultData.level);
   const [completed, setCompleted] = useState(defaultData.completed);
 
+  window.Telegram.WebApp.expand();
+
+  useEffect(() => {
+    // Check if Telegram WebApp and user data are available
+    if (window.Telegram && window.Telegram.WebApp) {
+      const user = window.Telegram.WebApp.initDataUnsafe?.user;
+      if (user) {
+        setUserId(user.id);
+        setFirstName(user.first_name);
+      } else {
+        console.error('User data is not available.');
+      }
+    } else {
+      console.error('Telegram WebApp script is not loaded.');
+    }
+  }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       try {

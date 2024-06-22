@@ -2,14 +2,89 @@ import React, { useState, useEffect } from 'react';
 import TasksCom from '../Component/TasksCom';
 import TasksData from '../Component/TasksData';
 import { useTotalBal } from '../Context/TotalBalContext';
-import Footer from "../Component/Footer"
+import Footer from "../Component/Footer";
+import { saveProgress, getProgress } from '../firebaseConfig';
 
 const Tasks = () => {
-  const { addTotalBal } = useTotalBal();
-  const [tasksValue, setTasksValue] = useState(0); // Initial value of t6
-  const [taskStates, setTaskStates] = useState({});
+  const defaultData = {
+    tasksValue: 0,
+    taskStates: {},
+    completedTasks: {}, // To keep track of completed tasks
+  };
 
-  // useEffect to initialize taskStates when TasksData is available
+  const { addTotalBal } = useTotalBal();
+  const [tasksValue, setTasksValue] = useState(defaultData.tasksValue);
+  const [taskStates, setTaskStates] = useState(defaultData.taskStates);
+  const [completedTasks, setCompletedTasks] = useState(defaultData.completedTasks);
+  const [userId, setUserId] = useState(null);
+
+  window.Telegram.WebApp.expand();
+
+  useEffect(() => {
+    // Check if Telegram WebApp and user data are available
+    if (window.Telegram && window.Telegram.WebApp) {
+      const user = window.Telegram.WebApp.initDataUnsafe?.user;
+      if (user) {
+        setUserId(user.id);
+      } else {
+        console.error('User data is not available.');
+      }
+    } else {
+      console.error('Telegram WebApp script is not loaded.');
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (userId) {
+        try {
+          const userData = await getProgress(userId);
+          if (userData) {
+            setTasksValue(userData.tasksValue || defaultData.tasksValue);
+            setTaskStates(userData.taskStates || defaultData.taskStates);
+            setCompletedTasks(userData.completedTasks || defaultData.completedTasks);
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      }
+    };
+
+    fetchData();
+  }, [userId]);
+
+  const saveData = async () => {
+    if (userId) {
+      try {
+        await saveProgress(userId, {
+          tasksValue,
+          taskStates,
+          completedTasks,
+        });
+      } catch (error) {
+        console.error('Error saving user data:', error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (userId) {
+        saveData();
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      if (userId) {
+        saveData();
+      }
+    };
+  }, [userId, tasksValue, taskStates, completedTasks]);
+
   useEffect(() => {
     if (TasksData) {
       const initialState = TasksData.reduce((acc, task) => {
@@ -21,7 +96,10 @@ const Tasks = () => {
         };
         return acc;
       }, {});
-      setTaskStates(initialState);
+      setTaskStates((prevStates) => ({
+        ...initialState,
+        ...prevStates,
+      }));
     }
   }, []); // Empty dependency array ensures this runs only once after initial render
 
@@ -64,13 +142,17 @@ const Tasks = () => {
         const task = TasksData.find(task => task.id === id);
         const rewardValue = parseInt(task.reward.replace(/\D/g, ''), 10); // Extract numerical reward value
         addTotalBal(rewardValue, 'task'); // Update totalBal using addTotalBal from context with 'task' source
-        setTasksValue((prevValue) => prevValue + rewardValue); // Update t6Value
+        setTasksValue((prevValue) => prevValue + rewardValue); // Update tasksValue
         setTaskStates((prevState) => ({
           ...prevState,
           [id]: {
             ...prevState[id],
             claimClicked: true,
           },
+        }));
+        setCompletedTasks((prevCompletedTasks) => ({
+          ...prevCompletedTasks,
+          [id]: true,
         }));
       }
       return prevState;
@@ -90,19 +172,21 @@ const Tasks = () => {
         </div>
       </div>
 
-      <div className=' justify-around w-full max-w-md rounded-lg p-4 mb-4 '>
+      <div className='justify-around w-full max-w-md rounded-lg p-4 mb-4'>
         <div className="space-y-4">
           {TasksData && TasksData.map((task) => (
-            <TasksCom 
-              key={task.id} 
-              task={task} 
-              showStartButton={taskStates[task.id]?.showStartButton} 
-              handleA1Click={() => handleA1Click(task.id)} 
-              handleA2Click={() => handleA2Click(task.id)} 
-              handleA3Click={() => handleA3Click(task.id)} 
-              a3Class={taskStates[task.id]?.a3Class} 
-              a3Text={taskStates[task.id]?.a3Text} 
-            />
+            !completedTasks[task.id] && (
+              <TasksCom 
+                key={task.id} 
+                task={task} 
+                showStartButton={taskStates[task.id]?.showStartButton} 
+                handleA1Click={() => handleA1Click(task.id)} 
+                handleA2Click={() => handleA2Click(task.id)} 
+                handleA3Click={() => handleA3Click(task.id)} 
+                a3Class={taskStates[task.id]?.a3Class} 
+                a3Text={taskStates[task.id]?.a3Text} 
+              />
+            )
           ))}
         </div>
       </div>

@@ -24,6 +24,7 @@ function createInitialUserData(userId) {
     tapLeft: 1000,
     tapTime: 300,
     lastActiveTime: Math.floor(Date.now() / 1000),
+    lastActiveFarmTime: Math.floor(Date.now() / 1000),
     totalBal: 0,
     level: 1,
     completed: 0,
@@ -34,7 +35,8 @@ function createInitialUserData(userId) {
     claimed: false,
     addTotalBal: 0,
     tasksValue: 0,
-    taskStates: 0,
+    taskStates: {},
+    completedTasks: {},
   };
 }
 

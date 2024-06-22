@@ -66,9 +66,11 @@ const Home = () => {
           if (newTapTime > 0) {
             setTapTime(newTapTime);
           } else {
+            // Reset tapLeft and tapTime if time has elapsed
             setTapLeft(1000);
             setTapTime(300);
           }
+          setLastActiveTime(data.lastActiveTime);
         } else {
           console.log('No user data found, using default values');
         }
@@ -107,16 +109,6 @@ const Home = () => {
   }, [userId, tapLeft, tapTime, totalBal, level, completed, taps]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (userId) {
-        saveData();
-      }
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, [userId, tapLeft, tapTime, totalBal, level, completed, taps]);
-
-  useEffect(() => {
     if (tapTime > 0) {
       const interval = setInterval(() => {
         setTapTime(prevTapTime => prevTapTime - 1);
@@ -127,8 +119,6 @@ const Home = () => {
       setTapTime(300);
     }
   }, [tapTime]);
-
- 
 
   return (
     <div className="p-7 min-h-screen bg-zinc-900 text-white flex flex-col items-center">

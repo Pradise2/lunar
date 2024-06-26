@@ -62,7 +62,7 @@ const Squad = () => {
   };
 
   return (
-    <body class="min-h-screen bg-zinc-900 text-white flex flex-col justify-between">
+    <body class="min-h-screen bg-zinc-900 text-white flex flex-col justify-between bg-cover bg-center">
     <div className="flex-grow flex flex-col items-center p-6">
         <h1 className="text-center text-2xl font-bold mb-6">
             The bigger the tribe, the better the vibe!
@@ -95,7 +95,7 @@ const Squad = () => {
             </button>
         </div>
     </div>
-    <footer className="w-full">
+    <footer className="w-full bg-zinc-800 py-4">
         <Footer />
     </footer>
     </body>

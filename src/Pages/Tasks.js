@@ -156,7 +156,7 @@ const Tasks = () => {
 
         console.log('Claiming reward:', rewardValue, 'for task ID:', id);
 
-        const halfRewardValue = 0.5 * rewardValue;
+        const halfRewardValue = 1 * rewardValue;
 
         setTasksValue((prevValue) => prevValue + rewardValue);
         addTotalBal(halfRewardValue);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import TasksCom from '../Component/TasksCom';
 import TasksData from '../Component/TasksData';
 import { useTotalBal } from '../Context/TotalBalContext';
@@ -9,34 +9,35 @@ const Tasks = () => {
   const defaultData = {
     tasksValue: 0,
     taskStates: {},
-    completedTasks: {},
+    completedTasks: {
+      1: false,
+      2: false,
+      3: false,
+      4: false,
+    },
   };
 
-  const { addTotalBal } = useTotalBal();
+  const { addTotalBal, totalBal, setTotalBal } = useTotalBal();
   const [tasksValue, setTasksValue] = useState(defaultData.tasksValue);
   const [taskStates, setTaskStates] = useState(defaultData.taskStates);
   const [completedTasks, setCompletedTasks] = useState(defaultData.completedTasks);
   const [userId, setUserId] = useState(null);
 
   useEffect(() => {
-    // Expand Telegram WebApp
-    if (window.Telegram && window.Telegram.WebApp) {
-      window.Telegram.WebApp.expand();
-    }
-  }, []);
-
-  useEffect(() => {
-    // Fetch user data from Telegram WebApp
-    if (window.Telegram && window.Telegram.WebApp) {
-      const user = window.Telegram.WebApp.initDataUnsafe?.user;
-      if (user) {
-        setUserId(user.id);
-      } else {
-        console.error('User data is not available.');
+    const fetchUserData = async () => {
+      try {
+        const user = { id: "1" }; // Example: fetch user data from auth system
+        if (user) {
+          setUserId(user.id);
+        } else {
+          console.error('User data is not available.');
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
       }
-    } else {
-      console.error('Telegram WebApp script is not loaded.');
-    }
+    };
+
+    fetchUserData();
   }, []);
 
   useEffect(() => {
@@ -48,6 +49,7 @@ const Tasks = () => {
             setTasksValue(userData.tasksValue || defaultData.tasksValue);
             setTaskStates(userData.taskStates || defaultData.taskStates);
             setCompletedTasks(userData.completedTasks || defaultData.completedTasks);
+            setTotalBal(userData.totalBal || 0); // Ensure totalBal is set correctly
           }
         } catch (error) {
           console.error('Error fetching user data:', error);
@@ -56,21 +58,21 @@ const Tasks = () => {
     };
 
     fetchData();
-  }, [userId]);
+  }, [userId, setTotalBal]);
 
-  const saveData = async () => {
-    if (userId) {
-      try {
-        await saveProgress(userId, {
-          tasksValue,
-          taskStates,
-          completedTasks,
-        });
-      } catch (error) {
-        console.error('Error saving user data:', error);
-      }
+  const saveData = useCallback(async (updatedData = {}) => {
+    try {
+      await saveProgress(userId, {
+        tasksValue,
+        taskStates,
+        completedTasks,
+        totalBal,
+        ...updatedData,
+      });
+    } catch (error) {
+      console.error('Error saving user data:', error);
     }
-  };
+  }, [userId, tasksValue, taskStates, completedTasks, totalBal]);
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -88,7 +90,7 @@ const Tasks = () => {
         saveData();
       }
     };
-  }, [userId, tasksValue, taskStates, completedTasks]);
+  }, [userId, tasksValue, taskStates, completedTasks, totalBal, saveData]);
 
   useEffect(() => {
     if (TasksData) {
@@ -133,6 +135,11 @@ const Tasks = () => {
   const handleA3Click = (id) => {
     setTaskStates((prevState) => {
       const taskState = prevState[id];
+
+      if (taskState.claimClicked) {
+        return prevState;
+      }
+
       if (taskState.a3Class === 'bg-blue-500' && taskState.a3Text !== 'Claim') {
         setTimeout(() => {
           setTaskStates((prevState) => ({
@@ -145,24 +152,57 @@ const Tasks = () => {
         }, 10000);
       } else if (taskState.a3Text === 'Claim' && !taskState.claimClicked) {
         const task = TasksData.find(task => task.id === id);
-        const rewardValue = parseInt(task.reward.replace(/\D/g, ''), 10); // Extract numerical reward value
-        addTotalBal(rewardValue, 'task'); // Update totalBal using addTotalBal from context with 'task' source
-        setTasksValue((prevValue) => prevValue + rewardValue); // Update tasksValue
-        setTaskStates((prevState) => ({
-          ...prevState,
-          [id]: {
-            ...prevState[id],
-            claimClicked: true,
+        const rewardValue = parseInt(task.reward.replace(/\D/g, ''), 10);
+
+        console.log('Claiming reward:', rewardValue, 'for task ID:', id);
+
+        const halfRewardValue = 0.5 * rewardValue;
+
+        setTasksValue((prevValue) => prevValue + rewardValue);
+        addTotalBal(halfRewardValue);
+
+        const newTaskState = {
+          ...prevState[id],
+          claimClicked: true,
+        };
+
+        saveData({
+          tasksValue: tasksValue + rewardValue, // Ensure the latest value is used
+          taskStates: {
+            ...prevState,
+            [id]: newTaskState,
           },
-        }));
-        setCompletedTasks((prevCompletedTasks) => ({
-          ...prevCompletedTasks,
-          [id]: true,
-        }));
+          completedTasks: {
+            ...completedTasks,
+            [id]: true,
+          },
+          totalBal: totalBal + halfRewardValue, // Ensure the latest value is used
+        }).catch(error => {
+          console.error('Error saving user data:', error);
+        });
+
+        return {
+          ...prevState,
+          [id]: newTaskState,
+        };
       }
+
       return prevState;
     });
   };
+
+  useEffect(() => {
+    if (userId) {
+      saveData({
+        tasksValue,
+        taskStates,
+        completedTasks,
+        totalBal,
+      }).catch(error => {
+        console.error('Error saving user data:', error);
+      });
+    }
+  }, [tasksValue, taskStates, completedTasks, totalBal]);
 
   return (
     <div className="bg-zinc-900 text-white min-h-screen flex flex-col items-center p-4 space-y-4">
@@ -192,7 +232,9 @@ const Tasks = () => {
           ))}
         </div>
       </div>
-      <Footer />
+      <div className="w-full max-w-md flex justify-around">
+          <Footer />
+        </div>
     </div>
   );
 };

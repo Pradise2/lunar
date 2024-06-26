@@ -10,16 +10,21 @@ export const TotalBalProvider = ({ children }) => {
   const [userId, setUserId] = useState(null);
 
   useEffect(() => {
-    if (window.Telegram && window.Telegram.WebApp) {
-      const user = window.Telegram.WebApp.initDataUnsafe?.user;
-      if (user) {
-        setUserId(user.id);
-      } else {
-        console.error('User data is not available.');
+    const fetchUserData = async () => {
+      try {
+        // Example: fetch user data from auth system
+        const user = { id: "1" }; // Placeholder, replace with actual auth logic
+        if (user) {
+          setUserId(user.id);
+        } else {
+          console.error('User data is not available.');
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
       }
-    } else {
-      console.error('Telegram WebApp script is not loaded.');
-    }
+    };
+
+    fetchUserData();
   }, []);
 
   useEffect(() => {
@@ -27,7 +32,11 @@ export const TotalBalProvider = ({ children }) => {
       if (userId) {
         try {
           const userData = await getProgress(userId);
-          setTotalBal(userData.totalBal || 0);
+          if (userData && userData.totalBal) {
+            setTotalBal(userData.totalBal);
+          } else {
+            setTotalBal(0);
+          }
         } catch (error) {
           console.error('Error fetching user data:', error);
         }
@@ -37,10 +46,12 @@ export const TotalBalProvider = ({ children }) => {
     fetchData();
   }, [userId]);
 
-  const addTotalBal = async (amount) => {
+  const addTotalBal = (amount) => {
     setTotalBal((prevTotalBal) => {
       const newTotalBal = prevTotalBal + amount;
-      saveProgress(userId, { totalBal: newTotalBal });
+      saveProgress(userId, { totalBal: newTotalBal }).catch(error => {
+        console.error('Error saving total balance:', error);
+      });
       return newTotalBal;
     });
   };

@@ -8,7 +8,10 @@ import TapImage from '../Component/TapImage';
 import { saveProgress, getProgress } from '../firebaseConfig';
 import MoonAnimation from '../Animation/MoonAnimation';
 
-const totalBalCom = (totalBal) => {
+const totalBalCom = (totalBal = 0) => {
+  if (isNaN(totalBal)) {
+    return '0.00';
+  }
   const fixedNumber = totalBal.toFixed(2);
   return fixedNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
@@ -35,27 +38,29 @@ const Home = () => {
   const [level, setLevel] = useState(defaultData.level);
   const [completed, setCompleted] = useState(defaultData.completed);
 
-  window.Telegram.WebApp.expand();
-
   useEffect(() => {
-    if (window.Telegram && window.Telegram.WebApp) {
-      const user = window.Telegram.WebApp.initDataUnsafe?.user;
-      if (user) {
+    console.log('Component mounted');
+    const fetchUserData = async () => {
+      try {
+        const user = { id: "1" }; // Example: replace with actual user data fetching logic
         setUserId(user.id);
-        setFirstName(user.first_name);
-      } else {
-        console.error('User data is not available.');
+        console.log('User data fetched:', user);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
       }
-    } else {
-      console.error('Telegram WebApp script is not loaded.');
-    }
+    };
+
+    fetchUserData();
   }, []);
 
   useEffect(() => {
+    console.log('User ID changed:', userId);
     const fetchData = async () => {
       if (userId) {
         try {
           const userData = await getProgress(userId);
+          console.log('User data from Firestore:', userData);
+
           setTapLeft(userData.tapLeft || defaultData.tapLeft);
           setTapTime(userData.tapTime || defaultData.tapTime);
           setLastActiveTime(userData.lastActiveTime || defaultData.lastActiveTime);
@@ -65,9 +70,7 @@ const Home = () => {
           setTaps(userData.taps || defaultData.taps);
         } catch (error) {
           console.error('Error fetching user data:', error);
-        } finally {
-          setIsLoading(false);
-        }
+        } 
       }
     };
 
@@ -85,6 +88,7 @@ const Home = () => {
         completed,
         taps
       });
+      console.log('User data saved successfully');
     } catch (error) {
       console.error('Error saving user data:', error);
     }
@@ -94,6 +98,7 @@ const Home = () => {
     const handleBeforeUnload = (e) => {
       if (userId) {
         saveData();
+        console.log('Saving user data before unload');
         e.preventDefault();
         e.returnValue = '';
       }
@@ -104,6 +109,7 @@ const Home = () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       if (userId) {
         saveData();
+        console.log('Saving user data on cleanup');
       }
     };
   }, [userId, tapLeft, tapTime, totalBal, level, completed, taps]);
@@ -125,38 +131,45 @@ const Home = () => {
       });
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      console.log('Interval cleared');
+    };
   }, [lastActiveTime]);
+
+  useEffect(() => {
+    console.log('Total Balance:', totalBal);
+  }, [totalBal]);
+
+  console.log('Rendering Home component');
 
   return (
     <>
-      {isLoading ? (
-        <MoonAnimation />
-      ) : (
-        <div className="p-7 min-h-screen bg-zinc-900 text-white flex flex-col items-center">
-          <div className="p-2 rounded-lg text-center w-full max-w-md">
+     <body className="min-h-screen bg-zinc-900 text-white flex flex-col justify-between bg-cover bg-center">
+    <div className="flex-grow flex flex-col items-center justify-center">
+        <div className="p-2 rounded-lg text-center w-full max-w-md">
             <p className="p-3 text-zinc-400 font-bold text-2xl">Lunar Token</p>
             <p className="p-4 text-4xl font-bold">
-              {totalBalCom(totalBal)} <span className="text-purple-400">lunar</span>
+                {totalBalCom(totalBal)} <span className="text-purple-400">lunar</span>
             </p>
-          </div>
+        </div>
 
-          <div className="text-center space-y-2">
+        <div className="text-center space-y-2">
             <p className="text-zinc-400">
-              Won't stop! Tap time shows refill, {userId ? `${userId} ` : ''} but the fun won’t flop! <span className="text-yellow-400">👍</span>
+                Won't stop! Tap time shows refill, {userId ? `${userId} ` : ''} but the fun won’t flop! <span className="text-yellow-400">👍</span>
             </p>
             <div className="flex justify-center space-x-4">
-              <div className="bg-purple-800 p-2 rounded-lg flex">
-                <p>{tapLeft} taps left</p>
-              </div>
-              <div className="bg-yellow-800 p-2 rounded-lg flex items-center space-x-2">
-                <span className="material-icons">access_time</span>
-                <p><FormattedTime time={tapTime} /></p>
-              </div>
+                <div className="bg-gradient-to-r from-purple-800 to-indigo-800 p-2 rounded-lg flex">
+                    <p>{tapLeft} taps</p>
+                </div>
+                <div className="bg-gradient-to-r bg-yellow-800 p-2 rounded-lg flex items-center space-x-2">
+                    <span className="material-icons">access_time</span>
+                    <p><FormattedTime time={tapTime} /></p>
+                </div>
             </div>
-          </div>
+        </div>
 
-          <TapImage
+        <TapImage
             images={imageList}
             level={level}
             taps={taps}
@@ -168,20 +181,21 @@ const Home = () => {
             setTapLeft={setTapLeft}
             tapTime={tapTime}
             setTapTime={setTapTime}
-          />
+        />
 
-          <div className="w-full justify-center">
+        <div className="w-full justify-center">
             <ProgressBar
-              completed={completed}
-              level={level}
-              totalLevels={9}
+                completed={completed}
+                level={level}
+                totalLevels={9}
             />
-          </div>
-          <div className="w-full max-w-md flex justify-around">
-            <Footer />
-          </div>
         </div>
-      )}
+    </div>
+
+    <div className="w-full max-w-md flex justify-around mt-4">
+        <Footer />
+    </div>
+</body>
     </>
   );
 };

@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
-    <div className=" w-full max-w-md flex justify-around mt-6">
+    <>
+     <div className="w-full max-w-md flex justify-around  bg-zinc-800 py-2">
       <Link to="/" className="flex flex-col items-center text-zinc-400">
         <span className="material-icons text-zinc-400">house</span>
         Home
@@ -21,6 +22,7 @@ const Footer = () => {
         Farm
       </Link>
     </div>
+    </>
   );
 };
 

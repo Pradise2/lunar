@@ -1,25 +1,6 @@
-import { initializeApp } from "firebase/app";
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { db } from './firebase';
+import { doc, setDoc, getDoc } from "firebase/firestore";
 
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBoapqfEEJwsZiStOWhZeTZlpFStKFCY80",
-  authDomain: "lunar-2ac46.firebaseapp.com",
-  databaseURL: "https://lunar-2ac46-default-rtdb.firebaseio.com",
-  projectId: "lunar-2ac46",
-  storageBucket: "lunar-2ac46.appspot.com",
-  messagingSenderId: "954289049346",
-  appId: "1:954289049346:web:1a08d54b3ae4122c82fc1b",
-  measurementId: "G-57Q2844SHQ"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-
-// Create initial user data
 function createInitialUserData(userId) {
   return {
     userId: userId,
@@ -38,17 +19,11 @@ function createInitialUserData(userId) {
     addTotalBal: 0,
     tasksValue: 0,
     taskStates: {},
-    completedTasks: {
-      1:false,
-      2:false,
-      3:false,
-      4:false,
-    },
+    completedTasks: {},
   };
 }
 
-// Function to save progress
-async function saveProgress(userId, data) {
+export async function saveProgress(userId, data) {
   if (!userId) {
     console.error('saveProgress called with undefined or null userId:', userId);
     return;
@@ -70,8 +45,7 @@ async function saveProgress(userId, data) {
   }
 }
 
-// Function to get progress
-async function getProgress(userId) {
+export async function getProgress(userId) {
   const docRef = doc(db, "Run", userId);
   try {
     const docSnap = await getDoc(docRef);
@@ -88,5 +62,3 @@ async function getProgress(userId) {
     throw error; // Rethrow the error if needed for further handling
   }
 }
-
-export { db, auth, saveProgress, getProgress };

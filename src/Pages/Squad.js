@@ -32,34 +32,37 @@ const Squad = () => {
       }
     }, []);
   
-  
-  const copyToClipboard = () => {
-    if (idme) {
-      const reflink = `https://t.me/..._bot?start=ref${idme}`;
+    const copyToClipboard = () => {
+      const userId = window.Telegram.WebApp.initDataUnsafe?.user?.id;
 
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(reflink).then(() => {
-          setCopied(true);
-          setTimeout(() => setCopied(false), 1000);
-        }).catch(err => {
-          console.error('Failed to copy text:', err);
-        });
-      } else {
-        const textArea = document.createElement('textarea');
-        textArea.value = reflink;
-        document.body.appendChild(textArea);
-        textArea.select();
-        try {
-          document.execCommand('copy');
-          setCopied(true);
-          setTimeout(() => setCopied(false), 2000);
-        } catch (err) {
-          console.error('Failed to copy:', err);
-        }
-        document.body.removeChild(textArea);
+      if(userId) {
+        setIdme(userId);
       }
-    }
-  };
+
+      const reflink = `https://t.me/..._bot?start=ref${userId}`
+   
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(reflink).then(() => {
+    setCopied(true);
+    setTimeout(() =>  setCopied (false), 1000);
+      }).catch(err => {
+        console.error('Failed to copy text:', err);
+      });
+    } else {
+      const textArea = document.createElement('textarea');
+      textArea.value = reflink;
+      document.body.appendChild(textArea);
+      textArea.select();
+    try {
+      document.execCommand('copy');
+      setCopied(true);
+      setTimeout(() =>  setCopied (false), 2000);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+    } 
+    document.body.removeChild(textArea);
+  }
+};
 
   return (
     <body class="min-h-screen bg-zinc-900 text-white flex flex-col justify-between bg-cover bg-center">

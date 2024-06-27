@@ -192,7 +192,7 @@ const Home = () => {
         </div>
     </div>
 
-    <div className="w-full max-w-md flex justify-around mt-4">
+    <div className="w-full max-w-md fixed bottom-0 left-0 flex justify-around mt-4  bg-zinc-800 py-4">
         <Footer />
     </div>
 </body>

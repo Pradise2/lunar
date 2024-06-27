@@ -182,7 +182,7 @@ const Farm = () => {
             {buttonText}
         </button>
     </div>
-    <div className="w-full max-w-md flex justify-around mt-4  bg-zinc-800 py-2">
+    <div className="w-full max-w-md flex justify-around mt-4 fixed bottom-0 left-0   bg-zinc-800 py-2">
         <Footer />
     </div>
     </body>

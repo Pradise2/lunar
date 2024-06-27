@@ -30,9 +30,7 @@ const Tasks = () => {
       const user = window.Telegram.WebApp.initDataUnsafe?.user;
       if (user) {
         setUserId(user.id);
-        setFirstName(user.first_name);
-        // Load data from Firestore
-        loadUserData(user.id);
+        
       } else {
         console.error('User data is not available.');
       }

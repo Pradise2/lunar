@@ -7,7 +7,7 @@ const Squad = () => {
   const [count, setCount] = useState(0);
   const [idme, setIdme] = useState("");
   const [claimLevel, setClaimLevel] = useState(false);
-  const [users, setUsers] = useState([]);
+  const [userId, setUserId] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -23,9 +23,7 @@ const Squad = () => {
         const user = window.Telegram.WebApp.initDataUnsafe?.user;
         if (user) {
           setUserId(user.id);
-          setFirstName(user.first_name);
-          // Load data from Firestore
-          loadUserData(user.id);
+          
         } else {
           console.error('User data is not available.');
         }
@@ -88,7 +86,7 @@ const Squad = () => {
                 <span className="material-icons text-zinc-400">group</span>
                 <p>Your team</p>
             </div>
-            <p>{users.length} Users</p>
+            <p>{userId.length} Users</p>
         </div>
         <div className="w-full max-w-md flex space-x-2 mt-5">
             <button className="flex-1 bg-gradient-to-r from-purple-800 to-indigo-800 py-2 rounded-lg">Invite friends</button>

@@ -95,7 +95,7 @@ const Squad = () => {
             </button>
         </div>
     </div>
-    <footer className="w-full bg-zinc-800 py-4">
+    <footer className="w-full max-w-md flex justify-around mt-4  bg-zinc-800 py-2">
         <Footer />
     </footer>
     </body>

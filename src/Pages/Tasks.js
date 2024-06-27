@@ -232,7 +232,7 @@ const Tasks = () => {
           ))}
         </div>
       </div>
-      <div className="w-full max-w-md flex justify-around">
+      <div className="w-full max-w-md flex justify-around bg-zinc-800 py-2">
           <Footer />
         </div>
     </div>

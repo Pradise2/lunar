@@ -23,21 +23,22 @@ const Tasks = () => {
   const [completedTasks, setCompletedTasks] = useState(defaultData.completedTasks);
   const [userId, setUserId] = useState(null);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const user = { id: "1" }; // Example: fetch user data from auth system
-        if (user) {
-          setUserId(user.id);
-        } else {
-          console.error('User data is not available.');
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
+  window.Telegram.WebApp.ready();
 
-    fetchUserData();
+  useEffect(() => {
+    if (window.Telegram && window.Telegram.WebApp) {
+      const user = window.Telegram.WebApp.initDataUnsafe?.user;
+      if (user) {
+        setUserId(user.id);
+        setFirstName(user.first_name);
+        // Load data from Firestore
+        loadUserData(user.id);
+      } else {
+        console.error('User data is not available.');
+      }
+    } else {
+      console.error('Telegram WebApp script is not loaded.');
+    }
   }, []);
 
   useEffect(() => {

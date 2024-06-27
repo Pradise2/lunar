@@ -16,21 +16,23 @@ const Squad = () => {
     .format(count)
     .replace(/,/g, "");
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const user = "1"; // Example: fetch user data from auth system
+    window.Telegram.WebApp.ready();
+
+    useEffect(() => {
+      if (window.Telegram && window.Telegram.WebApp) {
+        const user = window.Telegram.WebApp.initDataUnsafe?.user;
         if (user) {
-          setIdme(user); // Assuming user object has an id field
+          setUserId(user.id);
+          setFirstName(user.first_name);
+          // Load data from Firestore
+          loadUserData(user.id);
         } else {
           console.error('User data is not available.');
         }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
+      } else {
+        console.error('Telegram WebApp script is not loaded.');
       }
-    };
-    fetchUserData();
-  }, []);
+    }, []);
   
   
   const copyToClipboard = () => {
@@ -64,7 +66,7 @@ const Squad = () => {
   return (
     <body class="min-h-screen bg-zinc-900 text-white flex flex-col justify-between bg-cover bg-center">
     <div className="flex-grow flex flex-col items-center p-6">
-        <h1 className="text-center text-2xl font-bold mb-6">
+        <h1 className="text-center text-2xl font-bold ">
             The bigger the tribe, the better the vibe!
         </h1>
         <div className="w-full max-w-md bg-zinc-800 rounded-lg p-4 mb-4">

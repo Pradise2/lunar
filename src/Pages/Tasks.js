@@ -205,37 +205,39 @@ const Tasks = () => {
   }, [tasksValue, taskStates, completedTasks, totalBal]);
 
   return (
-    <div className="bg-zinc-900 text-white min-h-screen flex flex-col items-center p-4 space-y-4">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold">Complete the mission, earn the commission!</h1>
-        <p className="text-zinc-400 mt-2">But hey, only qualified actions unlock the Lunar galaxy! ✨</p>
-        <div className="w-full rounded-lg p-2 mb-1">
-          <p id="T6" className="text-center text-3xl font-bold">
-            {tasksValue.toLocaleString()}&nbsp;<span className="text-purple-400">Lunar</span>
-          </p>
-        </div>
-      </div>
-
-      <div className='justify-around w-full max-w-md rounded-lg p-4 mb-4'>
-        <div className="space-y-4">
-          {TasksData && TasksData.map((task) => (
-            <TasksCom 
-              key={task.id} 
-              task={task} 
-              showStartButton={!completedTasks[task.id] && taskStates[task.id]?.showStartButton} 
-              handleA1Click={() => handleA1Click(task.id)} 
-              handleA2Click={() => handleA2Click(task.id)} 
-              handleA3Click={() => handleA3Click(task.id)} 
-              a3Class={taskStates[task.id]?.a3Class} 
-              a3Text={taskStates[task.id]?.a3Text} 
-            />
-          ))}
-        </div>
-      </div>
-      <div className="w-full max-w-md flex justify-around bg-zinc-800 py-2">
-          <Footer />
-        </div>
+    <div className="min-h-screen bg-zinc-900 text-white flex flex-col bg-cover bg-center">
+  <div className="flex-grow text-center">
+    <h1 className="text-2xl font-bold">Complete the mission, earn the commission!</h1>
+    <p className="text-zinc-400 mt-2">But hey, only qualified actions unlock the Lunar galaxy! ✨</p>
+    <div className="w-full rounded-lg p-2 mb-1">
+      <p id="T6" className="text-center text-3xl font-bold">
+        {tasksValue.toLocaleString()}&nbsp;<span className="text-purple-400">Lunar</span>
+      </p>
     </div>
+  </div>
+
+  <div className='w-full max-w-md rounded-lg p-4 mb-4 mx-auto'>
+    <div className="space-y-4">
+      {TasksData && TasksData.map((task) => (
+        <TasksCom 
+          key={task.id} 
+          task={task} 
+          showStartButton={!completedTasks[task.id] && taskStates[task.id]?.showStartButton} 
+          handleA1Click={() => handleA1Click(task.id)} 
+          handleA2Click={() => handleA2Click(task.id)} 
+          handleA3Click={() => handleA3Click(task.id)} 
+          a3Class={taskStates[task.id]?.a3Class} 
+          a3Text={taskStates[task.id]?.a3Text} 
+        />
+      ))}
+    </div>
+  </div>
+
+  <div className="w-full bg-zinc-800 py-2 fixed bottom-0">
+    <Footer />
+  </div>
+</div>
+
   );
 };
 

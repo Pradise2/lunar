@@ -148,8 +148,8 @@ const Home = () => {
     <>
      <body className="min-h-screen bg-zinc-900 text-white flex flex-col justify-between bg-cover bg-center">
     <div className="flex-grow flex flex-col items-center justify-center">
-        <div className="p-2 rounded-lg text-center w-full max-w-md">
-            <p className="p-3 text-zinc-400 font-bold text-2xl">Lunar Token</p>
+        <div className=" rounded-lg text-center w-full max-w-md">
+            <p className="p-2 text-zinc-400 font-bold text-2xl">Lunar Token</p>
             <p className="p-4 text-4xl font-bold">
                 {totalBalCom(totalBal)} <span className="text-purple-400">lunar</span>
             </p>

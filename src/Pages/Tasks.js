@@ -205,8 +205,8 @@ const Tasks = () => {
   }, [tasksValue, taskStates, completedTasks, totalBal]);
 
   return (
-    <div className="min-h-screen bg-zinc-900 text-white flex flex-col bg-cover bg-center">
-  <div className="flex-grow text-center">
+    <div className="min-h-screen bg-zinc-900 text-white flex flex-col justify-between bg-cover bg-center">
+  <div className="text-center">
     <h1 className="text-2xl font-bold">Complete the mission, earn the commission!</h1>
     <p className="text-zinc-400 mt-2">But hey, only qualified actions unlock the Lunar galaxy! ✨</p>
     <div className="w-full rounded-lg p-2 mb-1">
@@ -233,10 +233,11 @@ const Tasks = () => {
     </div>
   </div>
 
-  <div className="w-full bg-zinc-800 py-2 fixed bottom-0">
+  <div className="w-full bg-zinc-800 py-2 fixed bottom-0 left-0">
     <Footer />
   </div>
 </div>
+
 
   );
 };

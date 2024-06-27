@@ -88,7 +88,7 @@ const Squad = () => {
             </div>
             <p>{users.length} Users</p>
         </div>
-        <div className="w-full max-w-md flex space-x-2 mt-5 pb-2">
+        <div className="w-full max-w-md flex space-x-2 mt-5">
             <button className="flex-1 bg-gradient-to-r from-purple-800 to-indigo-800 py-2 rounded-lg">Invite friends</button>
             <button className="bg-zinc-700 p-2 rounded-lg" onClick={copyToClipboard}>
                 {copied ? <span>Copied!</span> : <span>Copy</span>}

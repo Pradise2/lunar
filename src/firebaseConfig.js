@@ -19,10 +19,12 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+
+
 // Create initial user data
 function createInitialUserData(userId) {
   return {
-    userId: userId,
+    userId: userId.toString(),
     tapLeft: 1000,
     tapTime: 300,
     lastActiveTime: Math.floor(Date.now() / 1000),
@@ -54,7 +56,7 @@ async function saveProgress(userId, data) {
     return;
   }
 
-  const docRef = doc(db, "Run", userId);
+  const docRef = doc(db, "Run", userId.toString());
   try {
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
@@ -72,7 +74,7 @@ async function saveProgress(userId, data) {
 
 // Function to get progress
 async function getProgress(userId) {
-  const docRef = doc(db, "Run", userId);
+  const docRef = doc(db, "Run", userId.toString());
   try {
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {

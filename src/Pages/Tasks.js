@@ -23,7 +23,7 @@ const Tasks = () => {
   const [completedTasks, setCompletedTasks] = useState(defaultData.completedTasks);
   const [userId, setUserId] = useState(null);
 
-  window.Telegram.WebApp.ready();
+  window.Telegram.WebApp.expand();
 
   useEffect(() => {
     if (window.Telegram && window.Telegram.WebApp) {

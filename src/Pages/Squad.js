@@ -16,7 +16,7 @@ const Squad = () => {
     .format(count)
     .replace(/,/g, "");
 
-    window.Telegram.WebApp.ready();
+    window.Telegram.WebApp.expand();
 
     useEffect(() => {
       if (window.Telegram && window.Telegram.WebApp) {

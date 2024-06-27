@@ -24,7 +24,7 @@ const Farm = () => {
   const [lastActiveFarmTime, setLastActiveFarmTime] = useState(defaultData.lastActiveFarmTime);
   const [userId, setUserId] = useState(null);
 
-  window.Telegram.WebApp.ready();
+  window.Telegram.WebApp.expand();
 
   useEffect(() => {
     if (window.Telegram && window.Telegram.WebApp) {

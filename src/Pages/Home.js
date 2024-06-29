@@ -147,14 +147,15 @@ const Home = () => {
   return (
     <>
      <body className="min-h-screen bg-zinc-900 text-white flex flex-col justify-between bg-cover bg-center">
-    <div className="flex-grow flex flex-col items-center justify-between">
-        <div className="rounded-lg text-center w-full max-w-md mt-4">
+    <div className="flex-grow flex flex-col items-center justify-start mt-4">
+        <div className=" rounded-lg text-center w-full max-w-md">
             <p className="p-2 text-zinc-400 font-bold text-2xl">Lunar Token</p>
             <p className="p-4 text-4xl font-bold">
                 {totalBalCom(totalBal)} <span className="text-purple-400">lunar</span>
             </p>
         </div>
-        <div className="text-center space-y-2 mb-4">
+
+        <div className="text-center space-y-2">
             <p className="text-zinc-400">
                 Won't stop! Tap time shows refill, {userId ? `${userId} ` : ''} but the fun won’t flop! <span className="text-yellow-400">👍</span>
             </p>
@@ -168,6 +169,7 @@ const Home = () => {
                 </div>
             </div>
         </div>
+
         <TapImage
             images={imageList}
             level={level}
@@ -181,7 +183,8 @@ const Home = () => {
             tapTime={tapTime}
             setTapTime={setTapTime}
         />
-        <div className="w-full justify-center mb-4">
+
+        <div className="w-full justify-center">
             <ProgressBar
                 completed={completed}
                 level={level}
@@ -190,7 +193,7 @@ const Home = () => {
         </div>
     </div>
 
-    <div className="w-full max-w-md fixed bottom-0 left-0 flex justify-around mt-4 bg-zinc-800 py-2">
+    <div className="w-full max-w-md fixed bottom-0 left-0 flex justify-around mt-4  bg-zinc-800 py-2">
         <Footer />
     </div>
 </body>

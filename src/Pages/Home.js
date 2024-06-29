@@ -147,7 +147,7 @@ const Home = () => {
   return (
     <>
      <body className="min-h-screen bg-zinc-900 text-white flex flex-col justify-between bg-cover bg-center">
-    <div className="flex-grow flex flex-col items-center justify-start mt-4">
+    <div className="flex-grow flex flex-col items-center justify-start mt-4 pb-12">
         <div className=" rounded-lg text-center w-full max-w-md">
             <p className="p-2 text-zinc-400 font-bold text-2xl">Lunar Token</p>
             <p className="p-4 text-4xl font-bold">

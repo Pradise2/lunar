@@ -23,7 +23,7 @@ const Farm = () => {
   const { addTotalBal, totalBal } = useTotalBal(); // Assuming useTotalBal provides totalBal as well
   const [lastActiveFarmTime, setLastActiveFarmTime] = useState(defaultData.lastActiveFarmTime);
   const [userId, setUserId] = useState(null);
-  const [userName, setUserName] = useState(null);
+  const [firstName, setFirstName] = useState(null);
 
   window.Telegram.WebApp.expand();
 
@@ -32,7 +32,7 @@ const Farm = () => {
       const user = window.Telegram.WebApp.initDataUnsafe?.user;
       if (user) {
         setUserId(user.id);
-        setUserName(userName);
+        setFirstName(firstName);
       } else {
         console.error('User data is not available.');
       }
@@ -170,7 +170,7 @@ const Farm = () => {
   
       <div className="mt-4">
         <img src="avatar_url" alt="Avatar" className="w-16 h-16 rounded-full mx-auto"/>
-        <p className="text-center text-zinc-400 italic mt-2">{userName ? `${userName} ` : ''}</p>
+        <p className="text-center text-zinc-400 italic mt-2">{firstName ? `${firstName} ` : ''}</p>
       </div>
   
       <div className="text-center mt-2 md:mt-4">

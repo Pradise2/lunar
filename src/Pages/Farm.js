@@ -23,6 +23,7 @@ const Farm = () => {
   const { addTotalBal, totalBal } = useTotalBal(); // Assuming useTotalBal provides totalBal as well
   const [lastActiveFarmTime, setLastActiveFarmTime] = useState(defaultData.lastActiveFarmTime);
   const [userId, setUserId] = useState(null);
+  const [userName, setUserName] = useState(null);
 
   window.Telegram.WebApp.expand();
 
@@ -31,6 +32,7 @@ const Farm = () => {
       const user = window.Telegram.WebApp.initDataUnsafe?.user;
       if (user) {
         setUserId(user.id);
+        setUserName(userName);
       } else {
         console.error('User data is not available.');
       }
@@ -161,37 +163,47 @@ const Farm = () => {
 
   return (
     <body class="min-h-screen bg-zinc-900 text-white flex flex-col justify-between">
-  <div className="flex-grow flex flex-col items-center justify-center px-4">
-    <div className="text-center">
-      <h1 className="text-3xl md:text-4xl font-bold mb-2">Lunar Token Farming</h1>
-      <p className="text-zinc-400 mt-2 md:mt-4">Keep your farm thriving!</p>
+    <div className="flex-grow flex flex-col items-center justify-start px-4 mt-8">
+      <div className="text-center">
+        <h1 className="text-3xl md:text-4xl font-bold mb-2">Lunar Token Farming</h1>
+      </div>
+  
+      <div className="mt-4">
+        <img src="avatar_url" alt="Avatar" className="w-16 h-16 rounded-full mx-auto"/>
+        <p className="text-center text-zinc-400 italic mt-2">{userName ? `${userName} ` : ''}</p>
+      </div>
+  
+      <div className="text-center mt-2 md:mt-4">
+        <p className="text-zinc-400">Keep your farm thriving!</p>
+      </div>
+  
+      <div className="bg-gradient-to-r from-purple-800 to-indigo-800 text-center py-3 px-6 rounded-lg flex justify-center items-center mt-5 transition transform hover:scale-105 hover:shadow-lg">
+        <span className="material-icons mr-2">access_time</span>
+        <p className="font-bold text-lg md:text-xl"><FormattedTime time={farmTime} /></p>
+      </div>
+  
+      <div className="mt-6 bg-zinc-800 rounded-lg p-6 relative w-full max-w-sm transition transform hover:scale-105 hover:shadow-lg">
+        <p className="text-center text-zinc-400">Era Reward</p>
+        <p className="text-center text-4xl font-bold mt-2">
+          {farm.toFixed(2)} <span className="text-purple-400">lunar</span>
+        </p>
+      </div>
+  
+      <button
+        className="mt-6 bg-zinc-700 text-white py-2 px-6 rounded-lg transition transform hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed"
+        onClick={handleButtonClick}
+        disabled={isFarmActive && farmTime > 0}
+      >
+        {buttonText}
+      </button>
     </div>
-
-    <div className="bg-gradient-to-r from-purple-800 to-indigo-800 text-center py-3 px-6 rounded-lg flex justify-center items-center mt-5 transition transform hover:scale-105 hover:shadow-lg">
-      <span className="material-icons mr-2">access_time</span>
-      <p className="font-bold text-lg md:text-xl"><FormattedTime time={farmTime} /></p>
+  
+    <div className="w-full max-w-md flex justify-around mt-4 fixed bottom-0 left-0 bg-zinc-800 py-2">
+      <Footer />
     </div>
-
-    <div className="mt-6 bg-zinc-800 rounded-lg p-6 relative w-full max-w-sm transition transform hover:scale-105 hover:shadow-lg">
-      <p className="text-center text-zinc-400">Era Reward</p>
-      <p className="text-center text-4xl font-bold mt-2">
-        {farm.toFixed(2)} <span className="text-purple-400">lunar</span>
-      </p>
-    </div>
-
-    <button
-      className="mt-6 bg-zinc-700 text-white py-2 px-6 rounded-lg transition transform hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed"
-      onClick={handleButtonClick}
-      disabled={isFarmActive && farmTime > 0}
-    >
-      {buttonText}
-    </button>
-  </div>
-
-  <div className="w-full max-w-md flex justify-around mt-4 fixed bottom-0 left-0 bg-zinc-800 py-2">
-    <Footer />
-  </div>
-</body>
+  </body>
+  
+  
 
   );
 };

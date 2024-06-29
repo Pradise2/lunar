@@ -190,8 +190,10 @@ const Farm = () => {
             </p>
         </div>
     
+        <div className="flex-grow"></div> 
+
         <button
-            className="mt-4 bg-zinc-700 text-white py-2 px-6 rounded-lg transition transform hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-4 bg-zinc-700 text-white py-2 px-6 rounded-lg transition transform hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed mb-4"
             onClick={handleButtonClick}
             disabled={isFarmActive && farmTime > 0}
         >
@@ -199,10 +201,11 @@ const Farm = () => {
         </button>
     </div>
   
-    <div className="w-full max-w-md flex justify-around mt-4 fixed bottom-0 left-0 bg-zinc-800 py-2">
+    <div className="w-full max-w-md flex justify-around fixed bottom-0 left-0 bg-zinc-800 py-2">
         <Footer />
     </div>
 </body>
+
 
 
   );

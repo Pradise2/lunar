@@ -147,7 +147,7 @@ const Home = () => {
   return (
     <>
  <body className="min-h-screen bg-zinc-900 text-white flex flex-col justify-between bg-cover bg-center">
-    <div className="flex-grow flex flex-col items-center justify-start mt-4 "> {/* Increased pb-32 for even more padding at the bottom */}
+    <div className="flex-grow flex flex-col items-center justify-start mt-4">
         <div className="rounded-lg text-center w-full max-w-md">
             <p className="p-2 text-zinc-400 font-bold text-2xl">Lunar Token</p>
             <p className="p-4 text-4xl font-bold">
@@ -184,19 +184,20 @@ const Home = () => {
             setTapTime={setTapTime}
         />
 
-        
-    </div>
-    <div className="w-full justify-center "> {/* Added mb-4 for extra margin at the bottom */}
+        <div className="w-full justify-center mt-4"> {/* Adjusted margin for better spacing */}
             <ProgressBar
                 completed={completed}
                 level={level}
                 totalLevels={9}
             />
         </div>
+    </div>
+
     <div className="w-full max-w-md fixed bottom-0 left-0 flex justify-around bg-zinc-800 py-2">
         <Footer />
     </div>
 </body>
+
     </>
   );
 };

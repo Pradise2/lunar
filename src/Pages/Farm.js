@@ -183,7 +183,7 @@ const Farm = () => {
             <p className="font-bold text-lg md:text-xl"><FormattedTime time={farmTime} /></p>
         </div>
     
-        <div className="mt-10 bg-zinc-800 rounded-lg p-6 relative w-full max-w-sm transition transform hover:scale-105 hover:shadow-lg">
+        <div className="mt-8 bg-zinc-800 rounded-lg p-6 relative w-full max-w-sm transition transform hover:scale-105 hover:shadow-lg">
             <p className="text-center text-zinc-400">Era Reward</p>
             <p className="text-center text-4xl font-bold mt-2">
                 {farm.toFixed(2)} <span className="text-purple-400">lunar</span>
@@ -191,7 +191,7 @@ const Farm = () => {
         </div>
     
         <button
-            className="mt-6 bg-zinc-700 text-white py-2 px-6 rounded-lg transition transform hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-4 bg-zinc-700 text-white py-2 px-6 rounded-lg transition transform hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={handleButtonClick}
             disabled={isFarmActive && farmTime > 0}
         >
@@ -204,7 +204,6 @@ const Farm = () => {
     </div>
 </body>
 
-  
 
   );
 };

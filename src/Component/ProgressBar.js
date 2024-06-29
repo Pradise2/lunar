@@ -35,13 +35,13 @@ const ProgressBar = ({ completed, level, totalLevels }) => {
   };
 
   const containerStyles = {
-    height: 20, // Reduce container height
+    height: 10, // Reduce container height
     width: "80%", // Reduce container width
     backgroundColor: "#e0e0de",
     borderRadius: 50,
     margin: "auto", // Center the progress bar
-    marginTop: 5, // Add top margin for spacing
-    padding: 5, // Reduce container padding
+    marginTop: 2, // Add top margin for spacing
+    padding: 2, // Reduce container padding
   };
 
   const fillerStyles = {

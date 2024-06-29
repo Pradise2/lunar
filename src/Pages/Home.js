@@ -184,7 +184,7 @@ const Home = () => {
             setTapTime={setTapTime}
         />
 
-        <div className="w-full justify-center">
+        <div className="w-full justify-center mt-4">
             <ProgressBar
                 completed={completed}
                 level={level}

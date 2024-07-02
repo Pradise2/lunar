@@ -1,70 +1,100 @@
-# Getting Started with Create React App
+import React, { useEffect, useState } from 'react';
+import Footer from '../Component/Footer';
+import { saveProgress, getProgress } from '../firebaseConfig';
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+const Squad = () => {
+  const [count, setCount] = useState(0);
+  const [idme, setIdme] = useState("");
+  const [claimLevel, setClaimLevel] = useState(false);
+  const [userId, setUserId] = useState("");
+  const [copied, setCopied] = useState(false);
 
-## Available Scripts
+  const formattedCount = new Intl.NumberFormat().format(count).replace(/,/g, "");
 
-In the project directory, you can run:
+  useEffect(() => {
+    if (window.Telegram && window.Telegram.WebApp) {
+      const user = window.Telegram.WebApp.initDataUnsafe?.user;
+      if (user) {
+        setUserId(user.id);
+      } else {
+        console.error('User data is not available.');
+      }
+    } else {
+      console.error('Telegram WebApp script is not loaded.');
+    }
+  }, []);
 
-### `npm start`
+  const copyToClipboard = () => {
+    const userId = window.Telegram.WebApp.initDataUnsafe?.user?.id;
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+    if (userId) {
+      setIdme(userId);
+    }
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+    const reflink = `https://t.me/..._bot?start=ref${userId}`;
 
-### `npm test`
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(reflink).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1000);
+      }).catch(err => {
+        console.error('Failed to copy text:', err);
+      });
+    } else {
+      const textArea = document.createElement('textarea');
+      textArea.value = reflink;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+      }
+      document.body.removeChild(textArea);
+    }
+  };
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+  return (
+    <body className="min-h-screen bg-zinc-900 text-white flex flex-col justify-between bg-cover bg-center">
+      <div className="flex-grow flex flex-col items-center p-6">
+        <h1 className="text-center text-2xl font-bold">
+          The bigger the tribe, the better the vibe!
+        </h1>
+        <div className="w-full max-w-md bg-zinc-800 rounded-lg p-4 mb-4">
+          <p className="text-center text-zinc-400">Total Reward</p>
+          <p className="text-center text-3xl font-bold">
+            {formattedCount} <span className="text-purple-400"></span>
+          </p>
+        </div>
+        <div className="w-full max-w-md bg-zinc-800 rounded-lg p-4 mb-4">
+          <p className="text-center text-zinc-400">Your rewards</p>
+          <p className="text-center text-3xl font-bold">
+            0.00 <span className="text-purple-400"></span>
+          </p>
+          <p className="text-center text-zinc-400 mb-4">10% of your friends' earnings</p>
+          <button className="w-full bg-zinc-700 text-zinc-500 py-2 rounded-lg">Claim</button>
+        </div>
+        <div className="w-full max-w-md bg-zinc-800 rounded-lg p-4 mb-4 flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <span className="material-icons text-zinc-400">group</span>
+            <p>Your team</p>
+          </div>
+          <p>{userId ? `${userId.length} Users` : 'Loading...'}</p>
+        </div>
+        <div className="w-full max-w-md flex space-x-2 mt-5">
+          <button className="flex-1 bg-gradient-to-r from-purple-800 to-indigo-800 py-2 rounded-lg">Invite friends</button>
+          <button className="bg-zinc-700 p-2 rounded-lg" onClick={copyToClipboard}>
+            {copied ? <span>Copied!</span> : <span>Copy</span>}
+          </button>
+        </div>
+      </div>
+      <footer className="w-full max-w-md flex justify-around fixed bottom-0 left-0  bg-zinc-800 py-2">
+        <Footer />
+      </footer>
+    </body>
+  );
+};
 
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+export default Squad;

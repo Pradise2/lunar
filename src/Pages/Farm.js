@@ -198,13 +198,7 @@ const Farm = () => {
             {buttonText}
         </button>
     </div>
-    <button
-            className="mt-4 bg-zinc-700 text-white py-2 px-6 rounded-lg transition transform hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={handleButtonClick}
-            disabled={isFarmActive && farmTime > 0}
-        >
-            {buttonText}
-        </button>
+
   
     <div className="w-full max-w-md flex justify-around mt-4 fixed bottom-0 left-0 bg-zinc-800 py-2">
         <Footer />

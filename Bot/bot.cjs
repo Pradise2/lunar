@@ -1,9 +1,9 @@
 require('dotenv').config();
 const { Telegraf, Markup } = require('telegraf');
 const { initializeApp } = require('firebase/app');
-const { getFirestore, doc, setDoc } = require('firebase/firestore');
+const { getFirestore, doc, setDoc, serverTimestamp } = require('firebase/firestore');
 
-
+// Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyBoapqfEEJwsZiStOWhZeTZlpFStKFCY80",
     authDomain: "lunar-2ac46.firebaseapp.com",
@@ -13,8 +13,7 @@ const firebaseConfig = {
     messagingSenderId: "954289049346",
     appId: "1:954289049346:web:1a08d54b3ae4122c82fc1b",
     measurementId: "G-57Q2844SHQ"
-  };
-
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -34,7 +33,6 @@ bot.start(async (ctx) => {
     const urlSent = `${web_link}?ref=${startPayload}&userId=${userId}`;
     const user = ctx.message.from;
     const userName = user.username ? `@${user.username.replace(/[-.!]/g, '\\$&')}` : user.first_name;
-    const isBot = user.is_bot;
 
     const messageText = `
 *Hey, ${userName}\\! Welcome to Lunar\\!*
@@ -47,13 +45,26 @@ Bring them all into the game\\.
         reply_markup: {
             inline_keyboard: [
                 [{ text: "Start Now", web_app: { url: urlSent } }]
-            ],
-            in: true
+            ]
         },
     });        
 });
 
-
+bot.command('referral', async (ctx) => {
+    const referralCode = Math.random().toString(36).substring(7);
+    const userId = ctx.from.id;
+  
+    try {
+        await setDoc(doc(db, 'referrals', referralCode), {
+            userId: userId,
+            createdAt: serverTimestamp(),
+        });
+        ctx.reply(`Your referral code is: ${referralCode}`);
+    } catch (error) {
+        console.error('Error writing document: ', error);
+        ctx.reply('There was an error generating your referral code. Please try again.');
+    }
+});
 
 bot.launch();
 

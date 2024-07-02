@@ -9,12 +9,7 @@ const Tasks = () => {
   const defaultData = {
     tasksValue: 0,
     taskStates: {},
-    completedTasks: {
-      1: false,
-      2: false,
-      3: false,
-      4: false,
-    },
+    completedTasks: {},
   };
 
   const { addTotalBal, totalBal, setTotalBal } = useTotalBal();

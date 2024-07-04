@@ -42,8 +42,7 @@ const Squad = () => {
           const userData = await getProgress(userId);
           console.log('User data from Firestore:', userData);
           setReferralCount(userData.referralCount || defaultData.referralCount);
-          setReferralEarnings(userData.referralEarnings || defaultData.referralEarnings);
-        
+          setReferralEarnings(userData.referralEarnings || defaultData.referralEarnings);    
           setTotalBalance(userData.totalBalance || defaultData.totalBalance);
           setLoading(false);
         } catch (error) {
@@ -126,8 +125,6 @@ const Squad = () => {
       document.body.removeChild(textArea);
     }
   };
-
-  const formattedTotalBal = new Intl.NumberFormat().format(totalBal).replace(/,/g, "");
 
   return (
     <div className="min-h-screen bg-zinc-900 text-white flex flex-col justify-between bg-cover bg-center">

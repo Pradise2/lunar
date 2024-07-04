@@ -7,7 +7,9 @@ const Squad = () => {
   const defaultData = {
     referralCount: 0,
     referralEarnings: 0,
-    totalBalance: 0
+    totalBalance: 0,
+    newUserIds: [],
+    claimedReferralCount: 0, // New property to track claimed referrals
   };
 
   const [copied, setCopied] = useState(false);
@@ -19,6 +21,8 @@ const Squad = () => {
   const [buttonText, setButtonText] = useState('Claim'); // State to manage button text
   const [userId, setUserId] = useState(null); // Added userId state
   const [userName, setUserName] = useState(null); // Added userName state
+  const [newReferralCount, setNewReferralCount] = useState(0); // New state to track new referrals
+  const [totalReferralCount, setTotalReferralCount] = useState(0); // New state to track total referrals
 
   window.Telegram.WebApp.expand();
 
@@ -42,9 +46,15 @@ const Squad = () => {
         try {
           const userData = await getProgress(userId);
           console.log('User data from Firestore:', userData);
-          setReferralCount(userData.referralCount || defaultData.referralCount);
-          setReferralEarnings(userData.referralEarnings || defaultData.referralEarnings);    
+          const currentReferralCount = userData.referralCount || defaultData.referralCount;
+          const claimedReferralCount = userData.claimedReferralCount || defaultData.claimedReferralCount;
+          const newReferrals = currentReferralCount - claimedReferralCount;
+
+          setReferralCount(currentReferralCount);
+          setReferralEarnings(newReferrals * 1000); // Assuming 1000 per referral
           setTotalBalance(userData.totalBalance || defaultData.totalBalance);
+          setNewReferralCount(newReferrals);
+          setTotalReferralCount(currentReferralCount); // Set total referral count
           setLoading(false);
         } catch (error) {
           console.error('Error fetching user data:', error);
@@ -56,12 +66,12 @@ const Squad = () => {
   }, [userId]);
 
   useEffect(() => {
-    if (referralEarnings > 0) {
-      setButtonColor('bg-purple-700'); // Change button color to purple if referralEarnings > 0
+    if (newReferralCount > 0) {
+      setButtonColor('bg-purple-700'); // Change button color to purple if newReferralCount > 0
     } else {
-      setButtonColor('bg-zinc-700'); // Change button color back to zinc if referralEarnings is 0
+      setButtonColor('bg-zinc-700'); // Change button color back to zinc if newReferralCount is 0
     }
-  }, [referralEarnings]);
+  }, [newReferralCount]);
 
   useEffect(() => {
     const saveData = async () => {
@@ -70,6 +80,7 @@ const Squad = () => {
           referralCount,
           referralEarnings, 
           totalBalance,
+          claimedReferralCount: referralCount, // Save the current referral count as claimed
         });
         console.log('User data saved successfully');
       } catch (error) {
@@ -100,6 +111,8 @@ const Squad = () => {
     setButtonColor('bg-zinc-700'); // Change the button color back to zinc after clicking
     setButtonText('Claimed'); // Change the button text to "Claimed"
     setTotalBalance((prevTotalBalance) => prevTotalBalance + referralEarnings); // Add referralEarnings to totalBalance
+    setReferralEarnings(0); // Reset referral earnings after claiming
+    setNewReferralCount(0); // Reset new referral count after claiming
   };
 
   const copyToClipboard = () => {
@@ -159,7 +172,7 @@ const Squad = () => {
                 <span className="material-icons text-zinc-400">group</span>
                 <p>Your team</p>
               </div>
-              <p>{referralCount} Users</p>
+              <p>{totalReferralCount} Users</p> {/* Display total referral count */}
             </div>
           </>
         )}

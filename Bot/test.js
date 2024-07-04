@@ -74,6 +74,7 @@ bot.command('referral', async (ctx) => {
         newUserIds: [],
         referralCount: 0,
         totalBalance: 0,
+        claimedReferralCount: 0,
         referralEarnings: 0
       });
       ctx.reply(`Your referral code is: ${referralCode}`);

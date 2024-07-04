@@ -43,6 +43,7 @@ function createInitialUserData(userId) {
     newUserIds: [],
     referralCount: 0,
     totalBalance: 0,
+    claimedReferralCount: 0,
     referralEarnings: 0  // Ensure this field is included
   };
 }

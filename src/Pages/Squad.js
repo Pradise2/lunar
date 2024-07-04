@@ -16,6 +16,7 @@ const Squad = () => {
   const [loading, setLoading] = useState(true);
   const [totalBalance, setTotalBalance] = useState(defaultData.totalBalance);
   const [buttonColor, setButtonColor] = useState('bg-zinc-700'); // State to manage button color
+  const [buttonText, setButtonText] = useState('Claim'); // State to manage button text
   const [userId, setUserId] = useState(null); // Added userId state
   const [userName, setUserName] = useState(null); // Added userName state
 
@@ -95,9 +96,10 @@ const Squad = () => {
   }, [userId, referralCount, referralEarnings, totalBalance]);
 
   const handleClaim = () => {
-    // Handle the claim action
     console.log('Claim button clicked');
     setButtonColor('bg-zinc-700'); // Change the button color back to zinc after clicking
+    setButtonText('Claimed'); // Change the button text to "Claimed"
+    setTotalBalance((prevTotalBalance) => prevTotalBalance + referralEarnings); // Add referralEarnings to totalBalance
   };
 
   const copyToClipboard = () => {
@@ -149,7 +151,7 @@ const Squad = () => {
               <button 
                 className={`w-full py-2 rounded-lg ${buttonColor}`} 
                 onClick={handleClaim}>
-                Claim
+                {buttonText}
               </button>
             </div>
             <div className="w-full max-w-md bg-zinc-800 rounded-lg p-4 mb-4 flex justify-between items-center">

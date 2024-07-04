@@ -5,7 +5,7 @@ const db = require('./firebase');
 const firebaseAdmin = require('firebase-admin');
 
 const app = express();
-const token = process.env.TOKEN || '7109694153:AAFe_7FE0huybS3EV17KE9taivyTQS11zeI';
+const token = process.env.TOKEN ;
 const bot = new Telegraf(token);
 
 // Web App Link

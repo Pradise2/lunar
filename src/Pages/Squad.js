@@ -11,7 +11,6 @@ const Squad = () => {
   };
 
   const [copied, setCopied] = useState(false);
-  const { addTotalBal, totalBal } = useTotalBal(); // Assuming useTotalBal provides totalBal as well
   const [referralCount, setReferralCount] = useState(defaultData.referralCount);
   const [referralEarnings, setReferralEarnings] = useState(defaultData.referralEarnings);
   const [loading, setLoading] = useState(true);
@@ -44,7 +43,7 @@ const Squad = () => {
           console.log('User data from Firestore:', userData);
           setReferralCount(userData.referralCount || defaultData.referralCount);
           setReferralEarnings(userData.referralEarnings || defaultData.referralEarnings);
-          addTotalBal(userData.totalBal || defaultData.totalBal);
+        
           setTotalBalance(userData.totalBalance || defaultData.totalBalance);
           setLoading(false);
         } catch (error) {
@@ -65,14 +64,12 @@ const Squad = () => {
   }, [referralEarnings]);
 
   useEffect(() => {
-    const saveData = async (additionalData = {}) => {
+    const saveData = async () => {
       try {
         await saveProgress(userId, {
           referralCount,
           referralEarnings, 
-          totalBal,
           totalBalance,
-          ...additionalData,
         });
         console.log('User data saved successfully');
       } catch (error) {
@@ -96,7 +93,7 @@ const Squad = () => {
         console.log('Saving user data on cleanup');
       }
     };
-  }, [userId, referralCount, referralEarnings, totalBal, totalBalance]);
+  }, [userId, referralCount, referralEarnings, totalBalance]);
 
   const handleClaim = () => {
     // Handle the claim action

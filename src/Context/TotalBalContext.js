@@ -9,23 +9,22 @@ export const TotalBalProvider = ({ children }) => {
   const [totalBal, setTotalBal] = useState(0);
   const [userId, setUserId] = useState(null);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        // Example: fetch user data from auth system
-        const user = { id: "1" }; // Placeholder, replace with actual auth logic
-        if (user) {
-          setUserId(user.id);
-        } else {
-          console.error('User data is not available.');
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
+  window.Telegram.WebApp.expand();
 
-    fetchUserData();
+  useEffect(() => {
+    if (window.Telegram && window.Telegram.WebApp) {
+      const user = window.Telegram.WebApp.initDataUnsafe?.user;
+      if (user) {
+        setUserId(user.id);
+       
+      } else {
+        console.error('User data is not available.');
+      }
+    } else {
+      console.error('Telegram WebApp script is not loaded.');
+    }
   }, []);
+
 
   useEffect(() => {
     const fetchData = async () => {

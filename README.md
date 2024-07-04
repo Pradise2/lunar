@@ -31,7 +31,7 @@ const Squad = () => {
       setIdme(userId);
     }
 
-    const reflink = `https://t.me/..._bot?start=ref${userId}`;
+    const reflink = `https://t.me/yourcoinhot_bot?start=ref_${userId}`;
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(reflink).then(() => {

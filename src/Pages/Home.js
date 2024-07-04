@@ -14,7 +14,7 @@ const totalBalCom = (totalBal = 0) => {
   }
   const fixedNumber = totalBal.toFixed(2);
   return fixedNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-};
+}; 
 
 const defaultData = {
   tapLeft: 1000,

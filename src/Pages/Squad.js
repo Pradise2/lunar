@@ -1,27 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import Footer from '../Component/Footer';
 import { saveProgress, getProgress } from '../firebaseConfig';
+import { useTotalBal } from '../Context/TotalBalContext';
 
 const Squad = () => {
-  const [count, setCount] = useState(0);
-  const [claimLevel, setClaimLevel] = useState(false);
-  const [userId, setUserId] = useState("");
-  const [copied, setCopied] = useState(false);
-  const [teamSize, setTeamSize] = useState(0);
-  const [earnings, setEarnings] = useState(0);
-  const [totalBalance, setTotalBalance] = useState(0);
+  const defaultData = {
+    referralCount: 0,
+    referralEarnings: 0,
+    totalBalance: 0
+  };
 
-  const formattedCount = new Intl.NumberFormat()
-    .format(count)
-    .replace(/,/g, "");
+  const [copied, setCopied] = useState(false);
+  const { addTotalBal, totalBal } = useTotalBal(); // Assuming useTotalBal provides totalBal as well
+  const [referralCount, setReferralCount] = useState(defaultData.referralCount);
+  const [referralEarnings, setReferralEarnings] = useState(defaultData.referralEarnings);
+  const [loading, setLoading] = useState(true);
+  const [totalBalance, setTotalBalance] = useState(defaultData.totalBalance);
+  const [buttonColor, setButtonColor] = useState('bg-zinc-700'); // State to manage button color
+  const [userId, setUserId] = useState(null); // Added userId state
+  const [userName, setUserName] = useState(null); // Added userName state
+
+  window.Telegram.WebApp.expand();
 
   useEffect(() => {
     if (window.Telegram && window.Telegram.WebApp) {
       const user = window.Telegram.WebApp.initDataUnsafe?.user;
       if (user) {
         setUserId(user.id);
-        fetchReferralData(user.id);
-        trackReferral(user.id);
+        setUserName(user.username);
       } else {
         console.error('User data is not available.');
       }
@@ -30,40 +36,72 @@ const Squad = () => {
     }
   }, []);
 
-  const fetchReferralData = async (telegramUserId) => {
-    try {
-      const response = await fetch(`/api/referral-data?telegramUserId=${telegramUserId}`);
-      const data = await response.json();
-      setTeamSize(data.referralCount);
-      setEarnings(data.earnings);
-      setTotalBalance(data.totalBalance);
-    } catch (error) {
-      console.error('Error fetching referral data:', error);
-    }
-  };
-
-  const trackReferral = async (telegramUserId) => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const refCode = urlParams.get('ref');
-    const totalBalance = 0; // Set the initial total balance, can be dynamic based on your game logic
-
-    if (refCode) {
-      try {
-        const response = await fetch('/api/track-referral', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ telegramUserId, refCode, totalBalance }),
-        });
-        if (!response.ok) {
-          throw new Error('Failed to track referral');
+  useEffect(() => {
+    if (userId) {
+      const fetchData = async () => {
+        try {
+          const userData = await getProgress(userId);
+          console.log('User data from Firestore:', userData);
+          setReferralCount(userData.referralCount || defaultData.referralCount);
+          setReferralEarnings(userData.referralEarnings || defaultData.referralEarnings);
+          addTotalBal(userData.totalBal || defaultData.totalBal);
+          setTotalBalance(userData.totalBalance || defaultData.totalBalance);
+          setLoading(false);
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+          setLoading(false);
         }
-        console.log('Referral tracked successfully');
-      } catch (error) {
-        console.error('Error tracking referral:', error);
-      }
+      };
+      fetchData();
     }
+  }, [userId]);
+
+  useEffect(() => {
+    if (referralEarnings > 0) {
+      setButtonColor('bg-purple-700'); // Change button color to purple if referralEarnings > 0
+    } else {
+      setButtonColor('bg-zinc-700'); // Change button color back to zinc if referralEarnings is 0
+    }
+  }, [referralEarnings]);
+
+  useEffect(() => {
+    const saveData = async (additionalData = {}) => {
+      try {
+        await saveProgress(userId, {
+          referralCount,
+          referralEarnings, 
+          totalBal,
+          totalBalance,
+          ...additionalData,
+        });
+        console.log('User data saved successfully');
+      } catch (error) {
+        console.error('Error saving user data:', error);
+      }
+    };
+
+    const handleBeforeUnload = (e) => {
+      if (userId) {
+        saveData();
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      if (userId) {
+        saveData();
+        console.log('Saving user data on cleanup');
+      }
+    };
+  }, [userId, referralCount, referralEarnings, totalBal, totalBalance]);
+
+  const handleClaim = () => {
+    // Handle the claim action
+    console.log('Claim button clicked');
+    setButtonColor('bg-zinc-700'); // Change the button color back to zinc after clicking
   };
 
   const copyToClipboard = () => {
@@ -92,33 +130,43 @@ const Squad = () => {
     }
   };
 
+  const formattedTotalBal = new Intl.NumberFormat().format(totalBal).replace(/,/g, "");
+
   return (
     <div className="min-h-screen bg-zinc-900 text-white flex flex-col justify-between bg-cover bg-center">
       <div className="flex-grow flex flex-col items-center p-6">
         <h1 className="text-center text-2xl font-bold">
           The bigger the tribe, the better the vibe!
         </h1>
-        <div className="w-full max-w-md bg-zinc-800 rounded-lg p-4 mb-4">
-          <p className="text-center text-zinc-400">Total Reward</p>
-          <p className="text-center text-3xl font-bold">
-            {formattedCount} <span className="text-purple-400"></span>
-          </p>
-        </div>
-        <div className="w-full max-w-md bg-zinc-800 rounded-lg p-4 mb-4">
-          <p className="text-center text-zinc-400">Your rewards</p>
-          <p className="text-center text-3xl font-bold">
-            {earnings.toFixed(2)} <span className="text-purple-400"></span>
-          </p>
-          <p className="text-center text-zinc-400 mb-4">10% of your friends' earnings</p>
-          <button className="w-full bg-zinc-700 text-zinc-500 py-2 rounded-lg">Claim</button>
-        </div>
-        <div className="w-full max-w-md bg-zinc-800 rounded-lg p-4 mb-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <span className="material-icons text-zinc-400">group</span>
-            <p>Your team</p>
-          </div>
-          <p>{teamSize} Users</p>
-        </div>
+        {!loading && (
+          <>
+            <div className="w-full max-w-md bg-zinc-800 rounded-lg p-4 mb-4">
+              <p className="text-center text-zinc-400">Total Reward</p>
+              <p className="text-center text-3xl font-bold">
+                {totalBalance.toFixed(2)} <span className="text-purple-400"></span>
+              </p>
+            </div>
+            <div className="w-full max-w-md bg-zinc-800 rounded-lg p-4 mb-4">
+              <p className="text-center text-zinc-400">Your rewards</p>
+              <p className="text-center text-3xl font-bold">
+                {referralEarnings.toFixed(2)} <span className="text-purple-400"></span>
+              </p>
+              <p className="text-center text-zinc-400 mb-4">1000 per friend's refer</p>
+              <button 
+                className={`w-full py-2 rounded-lg ${buttonColor}`} 
+                onClick={handleClaim}>
+                Claim
+              </button>
+            </div>
+            <div className="w-full max-w-md bg-zinc-800 rounded-lg p-4 mb-4 flex justify-between items-center">
+              <div className="flex items-center space-x-2">
+                <span className="material-icons text-zinc-400">group</span>
+                <p>Your team</p>
+              </div>
+              <p>{referralCount} Users</p>
+            </div>
+          </>
+        )}
         <div className="w-full max-w-md flex space-x-2 mt-5">
           <button className="flex-1 bg-gradient-to-r from-purple-800 to-indigo-800 py-2 rounded-lg" onClick={copyToClipboard}>
             Invite friends

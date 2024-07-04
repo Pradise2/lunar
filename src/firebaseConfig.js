@@ -19,8 +19,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-
-
 // Create initial user data
 function createInitialUserData(userId) {
   return {
@@ -41,6 +39,11 @@ function createInitialUserData(userId) {
     tasksValue: 0,
     taskStates: {},
     completedTasks: {},
+    referralEarn: 0,
+    newUserIds: [],
+    referralCount: 0,
+    totalBalance: 0,
+    referralEarnings: 0  // Ensure this field is included
   };
 }
 

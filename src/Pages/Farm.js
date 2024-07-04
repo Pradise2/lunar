@@ -144,14 +144,21 @@ const Farm = () => {
   };
 
   const claimFarmRewards = async () => {
-    addTotalBal(farm); // Update the balance immediately
-    const newTotalBal = totalBal + farm;
+    const claimedAmount = farm;
+    const newTotalBal = totalBal + claimedAmount;
+    
+    // Update the balance immediately
+    addTotalBal(claimedAmount); 
+  
     setFarm(0);
     setFarmTime(60);
     setClaimed(true);
     setButtonText('Start');
-    await saveData({ totalBal: newTotalBal, claimed: true }); // Persist data immediately after claiming
+    
+    // Persist data immediately after claiming
+    await saveData({ totalBal: newTotalBal, claimed: true }); 
   };
+  
 
   const handleButtonClick = () => {
     if (buttonText === 'Start') {

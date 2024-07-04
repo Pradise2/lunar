@@ -36,10 +36,10 @@ Bring them all into the game\\.
 
   if (startPayload.startsWith('ref_')) {
     const refUserId = startPayload.split('_')[1];
-    if (refUserId) {
+    if (refUserId && refUserId !== userId.toString()) {
       await storeReferral(refUserId, userId);
     } else {
-      console.error('Invalid refUserId:', refUserId);
+      console.error('Invalid or same refUserId:', refUserId);
     }
   }
 });
@@ -87,23 +87,24 @@ bot.command('referral', async (ctx) => {
 });
 
 const storeReferral = async (refUserId, newUserId) => {
-  if (!refUserId || !newUserId) {
+  if (!refUserId || !newUserId || refUserId === newUserId.toString()) {
     console.error('Invalid refUserId or newUserId:', { refUserId, newUserId });
     return;
   }
 
   try {
-    // Ensure new user exists in the users collection
+    // Check if the new user already exists in the users collection
     const newUserDocRef = db.collection('users').doc(newUserId.toString());
     const newUserDoc = await newUserDocRef.get();
 
-    if (!newUserDoc.exists) {
-      // Create a new user document if it doesn't exist
-      await newUserDocRef.set({ totalBal: 0 });
-      console.log('New user created:', newUserId);
+    if (newUserDoc.exists) {
+      console.log('New user already exists:', newUserId);
+      return; // Exit if the new user already exists
     }
 
-    const newUserData = (await newUserDocRef.get()).data();
+    // Create a new user document if it doesn't exist
+    await newUserDocRef.set({ });
+    console.log('New user created:', newUserId);
 
     // Fetch the referral document
     const referralDocRef = db.collection('Run').doc(refUserId);
